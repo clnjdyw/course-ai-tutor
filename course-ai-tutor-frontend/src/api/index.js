@@ -1,4 +1,4 @@
-import request from './request'
+import request, { ragRequest } from './request'
 
 /**
  * 智能体统一请求接口
@@ -33,7 +33,8 @@ export const plannerApi = {
   createPlan(data) {
     return request.post('/agent/request', {
       type: 'plan',
-      ...data
+      ...data,
+      knowledgeBaseId: data.knowledgeBaseId || null
     })
   },
   
@@ -44,6 +45,42 @@ export const plannerApi = {
       planId,
       content: feedback
     })
+  }
+}
+
+/**
+ * RAG 知识库 API
+ */
+export const ragApi = {
+  // 获取知识库列表
+  getKnowledgeBases() {
+    return ragRequest.get('/knowledge-bases')
+  },
+  
+  // 检索知识
+  retrieve(query, knowledgeBaseId = null, topK = 5) {
+    return ragRequest.post('/retrieve', {
+      query,
+      knowledgeBaseId,
+      topK
+    })
+  },
+  
+  // 获取文档列表
+  getDocuments(knowledgeBaseId = null) {
+    return ragRequest.get('/documents', {
+      params: { knowledgeBaseId }
+    })
+  },
+  
+  // 添加文档
+  addDocument(data) {
+    return ragRequest.post('/documents', data)
+  },
+  
+  // 获取统计
+  getStats() {
+    return ragRequest.get('/stats')
   }
 }
 

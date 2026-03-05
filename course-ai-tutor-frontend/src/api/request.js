@@ -3,8 +3,17 @@ import { ElMessage, ElNotification } from 'element-plus'
 import { useRouter } from 'vue-router'
 
 // 创建 axios 实例
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api'
+const RAG_BASE_URL = import.meta.env.VITE_RAG_BASE_URL || 'http://localhost:8083/api'
+
 const request = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api',
+  baseURL: API_BASE_URL,
+  timeout: 60000
+})
+
+// RAG 专用请求
+const ragRequest = axios.create({
+  baseURL: RAG_BASE_URL,
   timeout: 60000
 })
 
@@ -65,3 +74,4 @@ request.interceptors.response.use(
 )
 
 export default request
+export { ragRequest }

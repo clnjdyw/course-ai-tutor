@@ -1,14 +1,47 @@
 import express from 'express'
 import cors from 'cors'
+import fetch from 'node-fetch'
 
 const app = express()
 const PORT = 8081
+const RAG_SERVICE_URL = 'http://localhost:8083/api'
 
 app.use(cors())
 app.use(express.json())
 
-// 模拟 AI 响应生成器
-function generateAIResponse(type, content, context = '') {
+// RAG 检索函数
+async function retrieveFromRAG(query, knowledgeBaseId = null, topK = 5) {
+  try {
+    const response = await fetch(`${RAG_SERVICE_URL}/retrieve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        knowledgeBaseId,
+        topK,
+        threshold: 0.7
+      })
+    })
+    
+    const { data } = await response.json()
+    return data.results || []
+  } catch (error) {
+    console.error('❌ RAG 检索失败:', error.message)
+    return []
+  }
+}
+
+// 模拟 AI 响应生成器（带 RAG 增强）
+async function generateAIResponse(type, content, context = '', knowledgeBaseId = null) {
+  // 首先从 RAG 检索相关知识
+  let ragResults = []
+  if (content && type !== 'chat') {
+    ragResults = await retrieveFromRAG(content, knowledgeBaseId)
+  }
+  
+  const ragContext = ragResults.length > 0 
+    ? `\n\n相关知识库内容:\n${ragResults.map(r => `- ${r.content} (相似度：${r.similarity.toFixed(2)})`).join('\n')}`
+    : ''
   const responses = {
     plan: {
       success: true,
@@ -226,18 +259,25 @@ ${context || '随时都可以找我聊天哦！'}
     }
   }
   
-  return responses[type] || responses.chat
+  const response = responses[type] || responses.chat
+  
+  // 如果有 RAG 检索结果，添加到响应中
+  if (ragResults.length > 0) {
+    response.ragResults = ragResults
+    response.hasKnowledgeBase = true
+  }
+  
+  return response
 }
 
-// 统一智能体请求入口
-app.post('/api/agent/request', (req, res) => {
-  const { type, content, context, userId } = req.body
+// 统一智能体请求入口（带 RAG 增强）
+app.post('/api/agent/request', async (req, res) => {
+  const { type, content, context, userId, knowledgeBaseId } = req.body
   console.log(`🤖 收到${type}请求 from user ${userId}:`, content)
+  console.log(`🧠 RAG 检索知识库：${knowledgeBaseId || '自动'}`)
   
-  setTimeout(() => {
-    const response = generateAIResponse(type, content, context)
-    res.json(response)
-  }, 1000)
+  const response = await generateAIResponse(type, content, context, knowledgeBaseId)
+  res.json(response)
 })
 
 // 聊天接口
