@@ -1,24 +1,49 @@
 import request from './request'
 
 /**
+ * 智能体统一请求接口
+ */
+export const agentApi = {
+  // 统一请求入口（智能体管理器）
+  request(data) {
+    return request.post('/agent/request', data)
+  },
+  
+  // 聊天接口（陪伴智能体）
+  chat(data) {
+    return request.post('/agent/chat', data)
+  },
+  
+  // 获取智能体状态
+  getStatus() {
+    return request.get('/agent/status')
+  },
+  
+  // 获取智能体列表
+  getList() {
+    return request.get('/agent/list')
+  }
+}
+
+/**
  * 规划智能体 API
  */
 export const plannerApi = {
   // 创建学习计划
   createPlan(data) {
-    return request.post('/planner/plan', data)
+    return request.post('/agent/request', {
+      type: 'plan',
+      ...data
+    })
   },
   
   // 调整学习计划
   adjustPlan(planId, feedback) {
-    return request.put(`/planner/plan/${planId}`, feedback, {
-      headers: { 'Content-Type': 'text/plain' }
+    return request.post('/agent/request', {
+      type: 'plan',
+      planId,
+      content: feedback
     })
-  },
-  
-  // 获取智能体信息
-  getInfo() {
-    return request.get('/planner/info')
   }
 }
 
@@ -28,17 +53,20 @@ export const plannerApi = {
 export const tutorApi = {
   // 讲解知识点
   teach(data) {
-    return request.post('/tutor/teach', data)
+    return request.post('/agent/request', {
+      type: 'teach',
+      ...data
+    })
   },
   
   // 解答疑问
-  answerQuestion(params) {
-    return request.post('/tutor/answer', null, { params })
-  },
-  
-  // 获取智能体信息
-  getInfo() {
-    return request.get('/tutor/info')
+  answerQuestion(userId, question, context = '') {
+    return request.post('/agent/request', {
+      type: 'help',
+      userId,
+      content: question,
+      context
+    })
   }
 }
 
@@ -48,17 +76,20 @@ export const tutorApi = {
 export const helperApi = {
   // 解答问题
   answer(data) {
-    return request.post('/helper/answer', data)
+    return request.post('/agent/request', {
+      type: 'help',
+      ...data
+    })
   },
   
   // 代码调试
-  debugCode(params) {
-    return request.post('/helper/debug', null, { params })
-  },
-  
-  // 获取智能体信息
-  getInfo() {
-    return request.get('/helper/info')
+  debugCode(userId, code, errorMessage = '') {
+    return request.post('/agent/request', {
+      type: 'help',
+      userId,
+      content: `代码调试：${code}`,
+      context: `错误信息：${errorMessage}`
+    })
   }
 }
 
@@ -68,16 +99,32 @@ export const helperApi = {
 export const evaluatorApi = {
   // 评估作业
   evaluate(data) {
-    return request.post('/evaluator/evaluate', data)
+    return request.post('/agent/request', {
+      type: 'evaluate',
+      ...data
+    })
   },
   
   // 生成学习报告
-  generateReport(params, data) {
-    return request.post('/evaluator/report', data, { params })
-  },
-  
-  // 获取智能体信息
-  getInfo() {
-    return request.get('/evaluator/info')
+  generateReport(userId, learningData) {
+    return request.post('/agent/request', {
+      type: 'evaluate',
+      userId,
+      content: '生成学习报告',
+      context: learningData
+    })
+  }
+}
+
+/**
+ * 陪伴智能体 API（聊天交流）
+ */
+export const companionApi = {
+  // 聊天
+  chat(userId, message) {
+    return request.post('/agent/chat', {
+      userId,
+      message
+    })
   }
 }

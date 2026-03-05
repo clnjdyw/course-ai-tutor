@@ -7,225 +7,284 @@ const PORT = 8081
 app.use(cors())
 app.use(express.json())
 
-// 模拟 AI 响应
-const mockResponses = {
-  planner: {
-    success: true,
-    planContent: `# 📚 个性化学习计划
+// 模拟 AI 响应生成器
+function generateAIResponse(type, content, context = '') {
+  const responses = {
+    plan: {
+      success: true,
+      message: `# 📚 个性化学习计划
 
 ## 学习目标
-学习 Spring Boot 框架
+${content || '学习新知识'}
 
-## 第一阶段：Java 基础（2 周）
-- 变量与数据类型
-- 控制流程（if/for/while）
-- 面向对象编程
-- 集合框架
+## 第一阶段：基础入门（1-2 周）
+- 了解基本概念
+- 安装开发环境
+- 完成 Hello World
 
-## 第二阶段：Spring 核心（3 周）
-- IOC 容器
-- 依赖注入（DI）
-- AOP 面向切面
-- Spring MVC
+## 第二阶段：核心知识（3-4 周）
+- 深入学习核心概念
+- 完成实践项目
+- 解决常见问题
 
-## 第三阶段：Spring Boot（3 周）
-- 自动配置原理
-- Starter 依赖
-- RESTful API 开发
-- 数据库集成
+## 第三阶段：进阶提升（5-6 周）
+- 学习高级特性
+- 参与开源项目
+- 总结最佳实践
 
 ## 推荐资源
-1. 《Spring Boot 实战》
-2. B 站视频教程
-3. 官方文档
+1. 官方文档
+2. 在线教程
+3. 技术书籍
 
 ## 检查点
 - 每周完成一个小项目
-- 每月进行一次综合测试
-`,
-    agentType: 'planner'
-  },
-  
-  tutor: {
-    success: true,
-    content: `# 什么是依赖注入？
-
-## 定义
-**依赖注入（Dependency Injection, DI）** 是一种设计模式，用于实现控制反转（IOC）。
-
-## 核心思想
-不自己创建对象，而是由外部容器将依赖对象注入进来。
-
-## 示例代码
-
-### ❌ 传统方式
-\`\`\`java
-public class UserService {
-    private UserRepository repository = new UserRepository();
-}
-\`\`\`
-
-### ✅ 依赖注入方式
-\`\`\`java
-public class UserService {
-    private final UserRepository repository;
+- 每月进行一次总结
+- 持续学习和实践`,
+      agentType: 'planner'
+    },
     
-    // 通过构造函数注入
-    public UserService(UserRepository repository) {
-        this.repository = repository;
+    teach: {
+      success: true,
+      message: `# 📖 ${content || '知识点讲解'}
+
+## 什么是${content || '它'}？
+
+**${content || '知识点'}** 是一个重要的概念，让我详细为你讲解。
+
+## 核心概念
+
+### 1. 基本定义
+这是一个基础概念，理解它很重要。
+
+### 2. 工作原理
+它的工作流程如下：
+1. 第一步
+2. 第二步
+3. 第三步
+
+### 3. 使用场景
+- 场景一：常见用途
+- 场景二：实际应用
+- 场景三：高级用法
+
+## 代码示例
+
+\`\`\`java
+// 示例代码
+public class Example {
+    public static void main(String[] args) {
+        System.out.println("Hello, ${content || 'World'}!");
     }
 }
 \`\`\`
 
-## 优点
-1. **解耦**：类与依赖之间松耦合
-2. **可测试**：便于单元测试
-3. **可维护**：易于修改和扩展
-
-## Spring 中的 DI
-\`\`\`java
-@Service
-public class UserService {
-    @Autowired
-    private UserRepository repository;
-}
-\`\`\`
-
 ## 练习题
-1. 什么是控制反转？
-2. DI 有几种注入方式？
-3. @Autowired 的作用是什么？
-`,
-    topic: '依赖注入',
-    agentType: 'tutor'
-  },
-  
-  helper: {
-    success: true,
-    answer: `# IOC 和 DI 的区别
 
-## IOC（控制反转）
-- **是一种设计思想**
-- 将对象的创建权交给外部容器
-- 核心是"解耦"
+1. 什么是${content || '它'}？
+2. ${content || '它'}的工作原理是什么？
+3. 如何在实际项目中使用？
 
-## DI（依赖注入）
-- **是 IOC 的具体实现方式**
-- 容器将依赖对象注入到类中
-- 常见方式：构造器注入、Setter 注入
+## 总结
 
-## 关系
+掌握${content || '这个知识点'}需要：
+- ✅ 理解基本概念
+- ✅ 完成实践练习
+- ✅ 不断重复和复习`,
+      agentType: 'tutor'
+    },
+    
+    help: {
+      success: true,
+      message: `# 💡 问题解答
+
+## 你的问题
+${content || '请详细描述你的问题'}
+
+## 解答
+
+${context ? `**上下文**: ${context}\n\n` : ''}
+
+让我来帮你解决这个问题：
+
+### 分析
+根据你的描述，这个问题可能是因为：
+1. 原因一
+2. 原因二
+3. 原因三
+
+### 解决方案
+
+**方法一：推荐方案**
 \`\`\`
-IOC 是思想，DI 是实现
-就像：
-- "节能环保"是思想（IOC）
-- "使用太阳能"是实现方式（DI）
+// 代码示例
+solution();
 \`\`\`
 
-## 示例
-\`\`\`java
-// IOC 容器创建对象
-ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-
-// DI 注入依赖
-UserService service = context.getBean(UserService.class);
+**方法二：备选方案**
+\`\`\`
+// 替代方案
+alternative();
 \`\`\`
 
-简单来说：**IOC 是目标，DI 是手段**`,
-    question: 'IOC 和 DI 的区别',
-    agentType: 'helper'
-  },
-  
-  evaluator: {
-    success: true,
-    feedback: `# 作业批改结果
+### 建议
+- ✅ 先尝试方法一
+- ✅ 如果不行再试方法二
+- ✅ 还有问题随时问我
+
+### 相关资源
+- [官方文档](https://example.com)
+- [教程链接](https://example.com/tutorial)
+- [社区讨论](https://example.com/discuss)`,
+      agentType: 'helper'
+    },
+    
+    evaluate: {
+      success: true,
+      score: 85,
+      message: `# 📝 作业批改结果
 
 ## 评分：**85 分** ⭐⭐⭐⭐
 
 ## 优点 ✅
-1. 理解了依赖注入的基本概念
-2. 能区分 IOC 和 DI 的关系
-3. 答案结构清晰，逻辑连贯
+
+1. **理解准确**
+   - 对基本概念理解正确
+   - 能够运用所学知识
+
+2. **代码规范**
+   - 代码结构清晰
+   - 命名规范
+
+3. **逻辑清晰**
+   - 思路清晰
+   - 步骤完整
 
 ## 需要改进 ⚠️
-1. 可以补充更多实际应用场景
-2. 注意术语的准确性
-3. 建议增加代码示例
 
-## 详细点评
+1. **细节处理**
+   - 注意边界条件
+   - 增加错误处理
 
-### 第一题（10 分）- 什么是 IOC？
-**得分：8 分**
-回答基本正确，但可以更详细地说明 IOC 容器的作用。
+2. **性能优化**
+   - 可以考虑更优的算法
+   - 减少不必要的计算
 
-### 第二题（10 分）- DI 的实现方式
-**得分：9 分**
-三种注入方式都提到了，很好！
+3. **代码注释**
+   - 增加关键步骤注释
+   - 说明复杂逻辑
 
-### 第三题（10 分）- @Autowired 的作用
-**得分：8 分**
-理解了自动装配的概念，但可以说明 required 属性。
+## 具体建议
 
-## 建议
-继续加油！建议多写代码实践，加深理解。`,
-    score: 85,
-    agentType: 'evaluator'
-  }
+### 改进点 1
+\`\`\`java
+// 原代码
+if (condition) {
+    doSomething();
 }
 
-// API 路由
+// 建议改进
+if (condition != null && condition) {
+    doSomething();
+}
+\`\`\`
 
-// 规划智能体
-app.post('/api/planner/plan', (req, res) => {
-  console.log('📚 收到学习计划请求:', req.body)
+### 改进点 2
+- 添加单元测试
+- 增加输入验证
+- 优化数据结构
+
+## 鼓励的话
+
+做得很好！继续保持学习的热情，相信你会越来越优秀！💪`,
+      agentType: 'evaluator'
+    },
+    
+    chat: {
+      success: true,
+      message: `你好！😊 
+
+${content ? `我看到你说"${content}"，让我和你聊聊~` : '今天过得怎么样？有什么想和我分享的吗？'}
+
+作为你的学习伙伴，我可以：
+- 📚 帮你制定学习计划
+- 👨‍🏫 为你讲解知识点
+- 💬 解答你的疑问
+- 📊 评估你的学习成果
+
+${context || '随时都可以找我聊天哦！'}
+
+加油！我相信你一定可以的！💪✨`,
+      mood: {
+        moodType: 'HAPPY',
+        description: '😊 开心',
+        yesterdayAccuracy: 80.0,
+        todayCount: 5,
+        streakDays: 7
+      },
+      agentType: 'companion'
+    }
+  }
+  
+  return responses[type] || responses.chat
+}
+
+// 统一智能体请求入口
+app.post('/api/agent/request', (req, res) => {
+  const { type, content, context, userId } = req.body
+  console.log(`🤖 收到${type}请求 from user ${userId}:`, content)
+  
   setTimeout(() => {
-    res.json(mockResponses.planner)
+    const response = generateAIResponse(type, content, context)
+    res.json(response)
   }, 1000)
 })
 
-app.get('/api/planner/info', (req, res) => {
-  res.json({ name: 'Planner', description: '学习规划智能体' })
-})
-
-// 教学智能体
-app.post('/api/tutor/teach', (req, res) => {
-  console.log('👨‍🏫 收到教学请求:', req.body)
+// 聊天接口
+app.post('/api/agent/chat', (req, res) => {
+  const { userId, message } = req.body
+  console.log(`💬 收到聊天请求 from user ${userId}:`, message)
+  
   setTimeout(() => {
-    res.json(mockResponses.tutor)
-  }, 1000)
+    const response = generateAIResponse('chat', message)
+    res.json(response)
+  }, 800)
 })
 
-app.get('/api/tutor/info', (req, res) => {
-  res.json({ name: 'Tutor', description: '智能教学智能体' })
+// 获取智能体状态
+app.get('/api/agent/status', (req, res) => {
+  res.json({
+    status: 'ok',
+    agents: [
+      { name: 'Planner', status: 'online', description: '学习规划智能体' },
+      { name: 'Tutor', status: 'online', description: '智能教学智能体' },
+      { name: 'Helper', status: 'online', description: '实时答疑智能体' },
+      { name: 'Evaluator', status: 'online', description: '学习评估智能体' },
+      { name: 'Companion', status: 'online', description: '陪伴聊天智能体' },
+      { name: 'Manager', status: 'online', description: '智能体管理器' }
+    ]
+  })
 })
 
-// 答疑智能体
-app.post('/api/helper/answer', (req, res) => {
-  console.log('💬 收到答疑请求:', req.body)
-  setTimeout(() => {
-    res.json(mockResponses.helper)
-  }, 1000)
-})
-
-app.get('/api/helper/info', (req, res) => {
-  res.json({ name: 'Helper', description: '实时答疑智能体' })
-})
-
-// 评估智能体
-app.post('/api/evaluator/evaluate', (req, res) => {
-  console.log('📊 收到评估请求:', req.body)
-  setTimeout(() => {
-    res.json(mockResponses.evaluator)
-  }, 1000)
-})
-
-app.get('/api/evaluator/info', (req, res) => {
-  res.json({ name: 'Evaluator', description: '学习评估智能体' })
+// 获取智能体列表
+app.get('/api/agent/list', (req, res) => {
+  res.json([
+    { name: 'Planner', description: '学习规划智能体', type: 'PLANNER' },
+    { name: 'Tutor', description: '智能教学智能体', type: 'TUTOR' },
+    { name: 'Helper', description: '实时答疑智能体', type: 'HELPER' },
+    { name: 'Evaluator', description: '学习评估智能体', type: 'EVALUATOR' },
+    { name: 'Companion', description: '陪伴聊天智能体', type: 'COMPANION' },
+    { name: 'Manager', description: '智能体管理器', type: 'MANAGER' }
+  ])
 })
 
 // 健康检查
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() })
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  })
 })
 
 // 启动服务
@@ -235,10 +294,9 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('========================================')
   console.log(`   服务地址：http://0.0.0.0:${PORT}`)
   console.log(`   本地访问：http://localhost:${PORT}`)
-  console.log(`   公网访问：http://106.14.186.171:${PORT}`)
-  console.log(`   前端代理：http://localhost:3001/api -> http://localhost:${PORT}/api`)
+  console.log(`   API 前缀：/api`)
   console.log('========================================')
-  console.log('✅ 后端服务已启动')
-  console.log('✅ 前后端已连接')
+  console.log('✅ Mock 后端服务已启动')
+  console.log('✅ 智能体 API 已就绪')
   console.log('========================================')
 })

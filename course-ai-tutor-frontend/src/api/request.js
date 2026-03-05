@@ -1,24 +1,33 @@
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
+import { useRouter } from 'vue-router'
 
 // 创建 axios 实例
 const request = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api',
   timeout: 60000
 })
 
 // 请求拦截器
 request.interceptors.request.use(
   config => {
-    // 可以在这里添加 token 等
-    // const token = localStorage.getItem('token')
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`
-    // }
+    // 添加 Token
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    
+    // 添加用户 ID
+    const userId = localStorage.getItem('userId') || '1'
+    if (config.data && !config.data.userId) {
+      config.data.userId = parseInt(userId)
+    }
+    
+    console.log('📡 API 请求:', config.method.toUpperCase(), config.url)
     return config
   },
   error => {
-    console.error('请求错误:', error)
+    console.error('❌ 请求错误:', error)
     return Promise.reject(error)
   }
 )
@@ -26,11 +35,31 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
   response => {
+    console.log('✅ API 响应:', response.config.url, response.data)
     return response.data
   },
   error => {
-    console.error('响应错误:', error)
-    ElMessage.error(error.response?.data?.message || '请求失败')
+    console.error('❌ 响应错误:', error)
+    
+    // 401 未授权，跳转到登录页
+    if (error.response?.status === 401) {
+      ElNotification({
+        title: '未授权',
+        message: '登录已过期，请重新登录',
+        type: 'warning',
+        duration: 3000
+      })
+      localStorage.removeItem('token')
+      localStorage.removeItem('isLoggedIn')
+      
+      const router = useRouter()
+      router.push('/login')
+    }
+    
+    // 显示错误消息
+    const message = error.response?.data?.message || error.message || '请求失败'
+    ElMessage.error(message)
+    
     return Promise.reject(error)
   }
 )
