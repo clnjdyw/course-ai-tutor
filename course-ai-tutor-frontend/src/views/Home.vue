@@ -62,6 +62,35 @@
                 <span class="menu-text">学习评估</span>
               </div>
             </el-menu-item>
+            
+            <el-divider style="margin: 8px 16px; border-color: rgba(102, 126, 234, 0.2);" />
+            
+            <el-menu-item index="/statistics" class="menu-item">
+              <div class="menu-content">
+                <span class="menu-icon" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%)">
+                  <el-icon><TrendCharts /></el-icon>
+                </span>
+                <span class="menu-text">学习统计</span>
+              </div>
+            </el-menu-item>
+            
+            <el-menu-item index="/profile" class="menu-item">
+              <div class="menu-content">
+                <span class="menu-icon" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)">
+                  <el-icon><User /></el-icon>
+                </span>
+                <span class="menu-text">个人中心</span>
+              </div>
+            </el-menu-item>
+            
+            <el-menu-item index="/settings" class="menu-item">
+              <div class="menu-content">
+                <span class="menu-icon" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)">
+                  <el-icon><Setting /></el-icon>
+                </span>
+                <span class="menu-text">系统设置</span>
+              </div>
+            </el-menu-item>
           </el-menu>
 
           <div class="sidebar-footer">
@@ -72,6 +101,17 @@
                 <span class="user-level">学习达人</span>
               </div>
             </div>
+            
+            <!-- 后台管理入口 -->
+            <el-button 
+              text 
+              size="small" 
+              @click="$router.push('/admin')"
+              style="width: 100%; margin-top: 10px; color: #718096;"
+            >
+              <el-icon><Monitor /></el-icon>
+              后台管理
+            </el-button>
           </div>
         </el-aside>
         
@@ -95,8 +135,14 @@
                   </el-badge>
                 </el-tooltip>
                 
+                <el-tooltip content="退出登录" placement="bottom">
+                  <el-button circle class="action-item" @click="handleLogout">
+                    <el-icon><SwitchButton /></el-icon>
+                  </el-button>
+                </el-tooltip>
+                
                 <el-tooltip content="设置" placement="bottom">
-                  <el-button circle class="action-item">
+                  <el-button circle class="action-item" @click="$router.push('/settings')">
                     <el-icon><Setting /></el-icon>
                   </el-button>
                 </el-tooltip>
@@ -136,11 +182,12 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { ElConfigProvider } from 'element-plus'
+import { useRoute, useRouter } from 'vue-router'
+import { ElConfigProvider, ElMessage } from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
 const route = useRoute()
+const router = useRouter()
 const activeMenu = computed(() => route.path)
 
 const currentPage = computed(() => {
@@ -148,10 +195,22 @@ const currentPage = computed(() => {
     '/planner': '学习规划',
     '/tutor': '智能教学',
     '/helper': '实时答疑',
-    '/evaluator': '学习评估'
+    '/evaluator': '学习评估',
+    '/profile': '个人中心',
+    '/statistics': '学习统计',
+    '/settings': '系统设置',
+    '/admin': '后台管理'
   }
   return pageMap[route.path] || '首页'
 })
+
+const handleLogout = () => {
+  localStorage.removeItem('isLoggedIn')
+  localStorage.removeItem('isAdmin')
+  localStorage.removeItem('username')
+  ElMessage.success('已退出登录')
+  router.push('/login')
+}
 </script>
 
 <style scoped>

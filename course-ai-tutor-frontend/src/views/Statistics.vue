@@ -57,7 +57,7 @@
 
         <div class="overview-card">
           <div class="card-icon" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%)">
-            <el-icon :size="28><Medal /></el-icon>
+            <el-icon :size="28"><Medal /></el-icon>
           </div>
           <div class="card-info">
             <div class="card-value">5</div>

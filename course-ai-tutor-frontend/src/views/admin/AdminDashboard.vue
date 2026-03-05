@@ -5,7 +5,7 @@
         <div class="card-header">
           <div class="header-left">
             <div class="title-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
-              <el-icon :size="24><Monitor /></el-icon>
+              <el-icon :size="24"><Monitor /></el-icon>
             </div>
             <div>
               <h2>🔧 后台管理</h2>
