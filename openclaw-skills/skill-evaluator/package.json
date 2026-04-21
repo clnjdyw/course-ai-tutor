@@ -1,0 +1,21 @@
+{
+  "name": "skill-evaluator",
+  "version": "1.0.0",
+  "description": "Course AI Tutor - Evaluator Skill",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "openclaw",
+    "skill",
+    "ai-tutor",
+    "evaluator"
+  ],
+  "author": "Course AI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.16.0"
+  }
+}

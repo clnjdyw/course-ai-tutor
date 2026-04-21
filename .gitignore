@@ -1,0 +1,105 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Java/Maven
+target/
+*.jar
+*.war
+*.class
+.mvn/
+mvnw
+mvnw.cmd
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+server.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build
+dist/
+build/
+*.min.js
+*.min.css
+
+# Temporary
+tmp/
+temp/
+.cache/
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+database/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+letsencrypt/
+
+# Deployment
+deploy.sh
+DEPLOYMENT.md
+DEPLOYMENT_COMPLETE.md
+
+# Docker
+docker-compose*.yml
+!docker-compose.yml
+docker/*/
+
+# Backup
+*.bak
+*.backup
+*.old
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Misc
+.clawdhub/
+.openclaw/
+memory/
+HEARTBEAT.md
+IDENTITY.md
+USER.md
+SOUL.md
+TOOLS.md
+AGENTS.md
+BOOTSTRAP.md
+docker-compose-alist.yml
+
+# QQ Bot runtime data
+qqbot/

@@ -1,0 +1,21 @@
+{
+  "name": "skill-tutor",
+  "version": "1.0.0",
+  "description": "Course AI Tutor - Tutor Skill (Socratic Teaching)",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "openclaw",
+    "skill",
+    "ai-tutor",
+    "socratic-teaching"
+  ],
+  "author": "Course AI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.16.0"
+  }
+}

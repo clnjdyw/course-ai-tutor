@@ -1,0 +1,66 @@
+{
+  "name": "course-ai-tutor-openclaw",
+  "version": "1.0.0",
+  "description": "Course AI Tutor - OpenClaw Integration",
+  "type": "module",
+  "scripts": {
+    "start": "openclaw gateway --port 18789 --verbose",
+    "start:daemon": "openclaw gateway start",
+    "stop": "openclaw gateway stop",
+    "status": "openclaw gateway status",
+    "test": "node test/test-skills.js",
+    "test:companion": "openclaw skill run skill-companion chat --message \"你好\" --userId test_001",
+    "test:planner": "openclaw skill run skill-study-planner createPlan --userId test_001 --goal \"学习 Python\"",
+    "test:manager": "openclaw skill run skill-agent-manager handleMessage --message \"我想制定学习计划\" --userId test_001",
+    "doctor": "openclaw doctor",
+    "skill:list": "openclaw skill list",
+    "skill:link": "openclaw skill link"
+  },
+  "keywords": [
+    "openclaw",
+    "ai-tutor",
+    "course",
+    "education"
+  ],
+  "author": "Course AI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  },
+  "openclaw": {
+    "workspace": "course-ai-tutor",
+    "gateway": {
+      "port": 18789,
+      "verbose": true
+    },
+    "ai": {
+      "provider": "openai",
+      "baseUrl": "https://coding.dashscope.aliyuncs.com/v1",
+      "apiKey": "sk-sp-02a6a23e5ad44ac6beff6e9a13f6d544",
+      "model": "qwen3.6-plus",
+      "temperature": 0.7,
+      "maxTokens": 4096
+    },
+    "skills": [
+      "./skill-agent-manager",
+      "./skill-study-planner",
+      "./skill-tutor",
+      "./skill-homework-helper",
+      "./skill-evaluator",
+      "./skill-companion",
+      "./skill-search"
+    ],
+    "moodSystem": {
+      "enabled": true,
+      "thresholds": {
+        "excited": { "minAccuracy": 80, "minStreak": 7 },
+        "happy": { "minAccuracy": 80 },
+        "neutral": { "minAccuracy": 50 },
+        "concerned": { "minAccuracy": 0 }
+      }
+    }
+  }
+}

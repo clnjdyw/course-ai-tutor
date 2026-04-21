@@ -1,0 +1,21 @@
+{
+  "name": "skill-agent-manager",
+  "version": "1.0.0",
+  "description": "Course AI Tutor - Agent Manager Skill for OpenClaw",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "openclaw",
+    "skill",
+    "ai-tutor",
+    "agent-manager"
+  ],
+  "author": "Course AI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.16.0"
+  }
+}

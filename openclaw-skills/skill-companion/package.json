@@ -1,0 +1,22 @@
+{
+  "name": "skill-companion",
+  "version": "1.0.0",
+  "description": "Course AI Tutor - Companion Skill (Emotional Support)",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "openclaw",
+    "skill",
+    "ai-tutor",
+    "companion",
+    "emotional-support"
+  ],
+  "author": "Course AI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.16.0"
+  }
+}

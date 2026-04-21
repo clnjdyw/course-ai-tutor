@@ -1,0 +1,21 @@
+{
+  "name": "skill-study-planner",
+  "version": "1.0.0",
+  "description": "Course AI Tutor - Study Planner Skill",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "openclaw",
+    "skill",
+    "ai-tutor",
+    "study-planner"
+  ],
+  "author": "Course AI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.16.0"
+  }
+}

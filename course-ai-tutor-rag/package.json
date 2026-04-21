@@ -1,0 +1,23 @@
+{
+  "name": "course-ai-tutor-rag",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "课程辅导 AI - RAG 知识库系统",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "import": "node src/import.js",
+    "vectorize": "node src/vectorize.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "sql.js": "^1.10.3",
+    "node-fetch": "^3.3.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}

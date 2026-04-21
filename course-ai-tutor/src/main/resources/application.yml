@@ -1,0 +1,99 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: course-ai-tutor
+  
+  # 数据库配置（开发环境使用 H2）
+  datasource:
+    url: jdbc:h2:mem:coursedb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  
+  # 生产环境 PostgreSQL 配置（注释掉，需要时启用）
+  # datasource:
+  #   url: jdbc:postgresql://localhost:5432/course_ai
+  #   username: admin
+  #   password: ${DB_PASSWORD}
+  #   driver-class-name: org.postgresql.Driver
+  # jpa:
+  #   database-platform: org.hibernate.dialect.PostgreSQLDialect
+  #   hibernate:
+  #     ddl-auto: validate
+  
+  # AI 配置
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:sk-286b643e163489c7eb9038d8967cb69f}
+      base-url: https://api.siliconflow.cn/v1
+      chat:
+        options:
+          model: Qwen/Qwen2.5-Coder-32B-Instruct
+          temperature: 0.7
+          max-tokens: 2048
+    
+    # Vector Store 配置（Pgvector）
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 1536
+
+# 应用配置
+app:
+  name: 课程辅导 AI 智能体
+  version: 1.0.0
+  
+  # 智能体配置
+  agent:
+    planner:
+      enabled: true
+      model: Qwen/Qwen2.5-Coder-32B-Instruct
+    tutor:
+      enabled: true
+      model: Qwen/Qwen2.5-Coder-32B-Instruct
+    helper:
+      enabled: true
+      model: Qwen/Qwen2.5-Coder-32B-Instruct
+    evaluator:
+      enabled: true
+      model: Qwen/Qwen2.5-Coder-32B-Instruct
+  
+  # RAG 配置
+  rag:
+    enabled: true
+    top-k: 5
+    similarity-threshold: 0.7
+  
+  # 缓存配置
+  cache:
+    enabled: true
+    ttl: 3600
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.example.coursetutor: DEBUG
+    org.springframework.ai: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/course-ai-tutor.log

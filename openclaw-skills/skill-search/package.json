@@ -1,0 +1,10 @@
+{
+  "name": "skill-search",
+  "version": "1.0.0",
+  "description": "搜索智能体 - 帮助学生查找学习资源、资料、知识点扩展（带情绪反馈）",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  }
+}
