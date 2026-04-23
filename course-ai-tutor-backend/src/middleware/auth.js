@@ -14,8 +14,8 @@ export const authMiddleware = (req, res, next) => {
 
     const token = authHeader.split(' ')[1]
 
-    // 支持本地开发模拟模式：mock-token-{userId}-{role}
-    if (token.startsWith('mock-token-')) {
+    // 支持本地开发模拟模式：mock-token-{userId}-{role}（仅限非生产环境）
+    if (token.startsWith('mock-token-') && process.env.NODE_ENV !== 'production') {
       const parts = token.split('-')
       // 格式: mock-token-USERID-ROLE
       if (parts.length >= 4) {

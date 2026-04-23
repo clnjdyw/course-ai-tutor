@@ -1,31 +1,50 @@
 # 快速启动指南
 
-## 🚀 第一步：安装后端依赖
+## 前置条件
 
-打开 **命令提示符(CMD)**（不是PowerShell），运行：
+- Node.js >= 18（[下载](https://nodejs.org)）
+- DashScope API Key（[获取](https://dashscope.aliyun.com)）
+
+## 第一步：配置环境变量
+
+```cmd
+cd e:\download\course-ai-tutor-main\course-ai-tutor-backend
+copy .env.example .env
+```
+
+用文本编辑器打开 `.env`，填入你的 API Key：
+
+```env
+DASHSCOPE_API_KEY=your-actual-api-key-here
+```
+
+## 第二步：启动后端
+
+打开 **CMD（命令提示符）**，运行：
 
 ```cmd
 cd e:\download\course-ai-tutor-main\course-ai-tutor-backend
 npm install
-```
-
-## 🚀 第二步：启动后端服务器
-
-在 **命令提示符(CMD)** 中运行：
-
-```cmd
-cd e:\download\course-ai-tutor-main\course-ai-tutor-backend
 node src\server.js
 ```
 
-或者直接双击运行：
+启动成功后看到：
+
 ```
-e:\download\course-ai-tutor-main\course-ai-tutor-backend\start.bat
+========================================
+   🚀 Course AI Tutor - Backend Server
+========================================
+   环境：development
+   本地访问：http://localhost:8081
+========================================
+✅ 后端服务已启动
 ```
 
-## 🚀 第三步：启动前端（如果需要）
+验证：浏览器访问 http://localhost:8081/api/health，返回 `{"status":"ok"}` 即成功。
 
-打开**另一个命令提示符窗口**，运行：
+## 第三步：启动前端
+
+打开**另一个 CMD 窗口**：
 
 ```cmd
 cd e:\download\course-ai-tutor-main\course-ai-tutor-frontend
@@ -33,39 +52,23 @@ npm install
 npm run dev
 ```
 
-## ✅ 验证成功
+访问：http://localhost:5173
 
-后端启动成功后，你应该看到：
+## 可选：启动 RAG 知识库服务
 
-```
-========================================
-   🚀 Course AI Tutor - Backend Server
-========================================
-   环境：development
-   服务地址：http://0.0.0.0:8081
-   本地访问：http://localhost:8081
-   API 前缀：/api
-========================================
-✅ 后端服务已启动
-✅ 数据库已连接
-✅ JWT 认证已启用
-========================================
+```cmd
+cd e:\download\course-ai-tutor-main\course-ai-tutor-rag
+npm install
+node src\server.js
 ```
 
-然后在浏览器访问：`http://localhost:8081/api/health`
+## 常见问题
 
-应该看到：
-```json
-{
-  "status": "ok",
-  "timestamp": "...",
-  "uptime": 123.456
-}
+**端口被占用**：修改 `course-ai-tutor-backend/.env` 中的 `PORT=8081` 为其他端口，同时更新前端 `.env` 中的 `VITE_API_BASE_URL`。
+
+**npm 下载慢**：
+```cmd
+npm config set registry https://registry.npmmirror.com
 ```
 
-## ⚠️ 重要提示
-
-1. **必须使用 CMD（命令提示符）**，不要使用 PowerShell
-2. **必须先安装依赖**（npm install）
-3. **后端必须先启动**，然后再启动前端
-4. 如果端口8081被占用，可以修改 `.env` 文件中的 `PORT` 值
+**更多问题**：见 [TROUBLESHOOTING.md](TROUBLESHOOTING.md)

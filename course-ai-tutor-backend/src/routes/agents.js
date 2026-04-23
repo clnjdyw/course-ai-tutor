@@ -16,7 +16,7 @@ const router = express.Router()
 // 任务追踪（后台任务管理）
 const activeTasks = new Map()
 
-// 智能体统一请求入口 — 使用 MainAgent 协调
+// 智能体统一请求入口 — 使用 MainAgent 协调（带 RAG 检索标识）
 router.post('/request', authMiddleware, async (req, res) => {
   try {
     const { type, content, context, knowledgeBaseId } = req.body
@@ -28,9 +28,21 @@ router.post('/request', authMiddleware, async (req, res) => {
 
     // 可选：注入知识库内容到上下文
     let kbContent = ''
+    let ragResults = []
+    let hasKnowledgeBase = false
+
     if (knowledgeBaseId) {
       const entries = knowledgeBaseEntryModel.findAllByKbId(parseInt(knowledgeBaseId))
-      kbContent = formatKBForPrompt(entries)
+      if (entries && entries.length > 0) {
+        hasKnowledgeBase = true
+        kbContent = formatKBForPrompt(entries)
+        ragResults = entries.map(e => ({
+          title: e.title,
+          content: e.content?.substring(0, 200) + '...',
+          source: 'knowledge_base',
+          kbId: e.knowledge_base_id
+        }))
+      }
     }
 
     const result = await mainAgent.handleRequest(userId, content, {
@@ -42,7 +54,14 @@ router.post('/request', authMiddleware, async (req, res) => {
     // 缓存失效，下次请求重新构建
     invalidateContext(userId)
 
-    res.json({ success: true, data: result })
+    res.json({
+      success: true,
+      data: {
+        ...result,
+        hasKnowledgeBase,
+        ragResults
+      }
+    })
   } catch (error) {
     console.error('智能体请求失败:', error)
     res.status(500).json({ success: false, message: error.message })

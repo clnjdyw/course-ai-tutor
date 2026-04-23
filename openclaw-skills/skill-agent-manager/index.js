@@ -241,6 +241,7 @@ async function callSkill(skillName, action, params) {
  */
 export async function getAgentStatus() {
   return {
+    success: true,
     status: 'online',
     manager: 'active',
     moodSystem: 'enabled',

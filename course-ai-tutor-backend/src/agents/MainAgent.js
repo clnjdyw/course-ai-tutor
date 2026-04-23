@@ -22,7 +22,7 @@ class MainAgent {
     // 注册所有工具
     const toolList = Object.values(tools)
     registerAll(toolList)
-    console.log(`🔧 工具已注册: ${getToolNames().join(', ')}`)
+    console.log(`🔧 工具已注册：${getToolNames().join(', ')}`)
 
     // 注册子智能体
     this.registerSubAgent('tutor', tutorAgent)
@@ -43,7 +43,7 @@ class MainAgent {
   // 注册子智能体
   registerSubAgent(name, agent) {
     this.subAgents.set(name, agent)
-    console.log(`✅ 子智能体注册: ${name}`)
+    console.log(`✅ 子智能体注册：${name}`)
   }
 
   // 解析用户意图
@@ -70,19 +70,35 @@ class MainAgent {
 
   // 处理用户请求
   async handleRequest(userId, userInput, context = {}) {
-    console.log(`📨 中枢智能体收到请求: 用户${userId}`)
+    console.log(`📨 中枢智能体收到请求：用户${userId}`)
 
     // 0. 检查活跃学习会话，注入会话上下文
     const activeSession = studyCoordinator.getActiveSession(userId)
     if (activeSession) {
-      console.log(`📋 检测到活跃会话: ${activeSession.id} (模式: ${activeSession.mode})`)
+      console.log(`📋 检测到活跃会话：${activeSession.id} (模式：${activeSession.mode})`)
       context.sessionMode = activeSession.mode
       context.sessionHistory = activeSession.history?.slice(-3) || []
     }
 
-    // 1. 解析意图
-    const intent = this.parseIntent(userInput)
-    console.log(`🎯 识别意图: ${intent.type} (置信度: ${intent.confidence})`)
+    // 1. 解析意图：优先使用显式传入的 type，否则自动识别
+    let intent
+    if (context.type && context.type !== 'helper') {
+      // 映射前端类型到内部意图
+      const typeMap = {
+        'planning': 'planning',
+        'teaching': 'teaching',
+        'question': 'question',
+        'review': 'review',
+        'counseling': 'counseling',
+        'helper': 'question'
+      }
+      const mappedType = typeMap[context.type] || 'question'
+      intent = { type: mappedType, confidence: 0.95, originalInput: userInput, source: 'explicit' }
+      console.log(`[Intent] Using explicit type: ${intent.type}`)
+    } else {
+      intent = this.parseIntent(userInput)
+      console.log(`🎯 识别意图：${intent.type} (置信度：${intent.confidence})`)
+    }
 
     // 2. 选择思维链
     const thoughtPath = await thoughtEngine.selectPath(intent.type, {
@@ -125,7 +141,7 @@ class MainAgent {
     }
 
     const targetAgent = taskMap[taskType] || 'helper'
-    console.log(`🔄 调度任务到子智能体: ${targetAgent}`)
+    console.log(`🔄 调度任务到子智能体：${targetAgent}`)
 
     sharedKB.publishEvent('task_dispatch', this.name, targetAgent, { taskType, context })
 

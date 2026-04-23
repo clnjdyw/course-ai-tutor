@@ -38,9 +38,24 @@ import studyCoordinator from './agents/StudyCoordinator.js'
 const app = express()
 const PORT = process.env.PORT || 8081
 
+// 生产环境安全检查
+if (process.env.NODE_ENV === 'production') {
+  const secret = process.env.JWT_SECRET
+  if (!secret || secret.length < 32 || secret.startsWith('dev-') || secret.includes('your-')) {
+    throw new Error('生产环境必须设置强 JWT 密钥（至少32位，不能使用默认值）')
+  }
+}
+
 // 中间件
 app.use(helmet())
-app.use(cors())
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowed = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3001').split(',').map(s => s.trim())
+    if (!origin || allowed.includes(origin)) return callback(null, true)
+    callback(new Error(`CORS: 不允许的来源 ${origin}`))
+  },
+  credentials: true
+}))
 app.use(compression())
 app.use(morgan('dev'))
 app.use(express.json({ limit: '10mb' }))

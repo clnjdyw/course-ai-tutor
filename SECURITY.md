@@ -6,10 +6,14 @@
 
 ### 1. 撤销已泄露的 API 密钥
 
-以下密钥已被提交到代码历史中，**必须立即撤销**：
+以下密钥曾出现在代码或配置文件中，**必须立即撤销**：
 
+- **DashScope API Key**: `sk-sp-02a6a23e5ad44ac6beff6e9a13f6d544`
+  - 撤销地址：https://dashscope.aliyun.com → 控制台 → API Key 管理
 - **SiliconFlow API Key**: `sk-sp-02a6a23e5ad44ac6beff6e9a13f6d544`
+  - 撤销地址：https://siliconflow.cn → 账户设置 → API Keys
 - **OpenAI API Key**: `sk-286b643e163489c7eb9038d8967cb69f`
+  - 撤销地址：https://platform.openai.com → API Keys
 
 请登录相应的服务平台撤销这些密钥并生成新的密钥。
 

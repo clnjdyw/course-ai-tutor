@@ -1,213 +1,146 @@
 # 课程辅导 AI 系统
 
-一个基于 Spring AI + Vue 3 的智能课程辅导系统，包含 6 个 AI 智能体。
+基于多智能体协作的 AI 辅导系统，包含 6 个 AI 智能体，支持学习规划、智能教学、实时答疑、学习评估和情感陪伴。
 
-## 🎯 项目组成
+> ⚠️ **安全提示**：如果你克隆了此仓库，请立即前往 [DashScope 控制台](https://dashscope.aliyun.com) 撤销旧 API 密钥并生成新密钥。详见 [SECURITY.md](SECURITY.md)。
 
-### 1. 前端项目 (course-ai-tutor-frontend)
-- **技术栈**: Vue 3 + Vite + Element Plus
-- **端口**: 3001
-- **功能**: 学习规划、智能教学、实时答疑、学习评估、个人中心
+## 项目组成
 
-### 2. Spring AI 后端 (course-ai-tutor-spring)
-- **技术栈**: Spring Boot 3.2.4 + Spring AI 1.0.0-M6
-- **端口**: 8082
-- **智能体**:
-  - PlannerAgent - 学习规划
-  - TutorAgent - 智能教学
-  - HelperAgent - 实时答疑
-  - EvaluatorAgent - 学习评估
-  - CompanionAgent - 陪伴聊天（带情绪反馈）
-  - AgentManager - 智能体管理器
+| 服务 | 技术栈 | 端口 | 说明 |
+|------|--------|------|------|
+| **Node.js 后端** | Express + Anthropic SDK | 8081 | 主后端，包含所有智能体和认证 |
+| **Vue 3 前端** | Vue 3 + Vite + Element Plus | 5173 (dev) / 3001 (prod) | 用户界面 |
+| **RAG 知识库** | Node.js + sql.js | 8083 | 知识库检索服务 |
+| **OpenClaw Skills** | Node.js | 18789 | AI 技能扩展系统 |
+| Spring Boot 后端 | Spring Boot 3 + Spring AI | 8082 | 可选，实验性 |
+| Mock 服务器 | Node.js + Express | 8081 | 可选，用于无 API Key 测试 |
 
-### 3. Mock 后端 (course-ai-tutor-mock)
-- **技术栈**: Node.js + Express
-- **端口**: 8081
-- **用途**: 快速测试和演示
+## 快速开始
 
-## 🚀 快速开始
+详见 [QUICK_START.md](QUICK_START.md)。
 
-### 前端
+### 1. 配置环境变量
+
 ```bash
+cp course-ai-tutor-backend/.env.example course-ai-tutor-backend/.env
+# 编辑 .env，填入你的 DashScope API Key
+```
+
+### 2. 启动后端
+
+```cmd
+cd course-ai-tutor-backend
+npm install
+node src\server.js
+```
+
+### 3. 启动前端
+
+```cmd
 cd course-ai-tutor-frontend
 npm install
 npm run dev
 ```
 
-### Spring AI 后端
-```bash
-cd course-ai-tutor-spring
-mvn spring-boot:run
-```
+访问：http://localhost:5173
 
-### Mock 后端
-```bash
-cd course-ai-tutor-mock
-npm install
-npm start
-```
-
-## 🌐 部署
-
-### 域名部署
-```bash
-./deploy.sh
-```
-
-访问：https://dewdrop.cc.cd
-
-## 📁 项目结构
+## 系统架构
 
 ```
-workspace/
-├── course-ai-tutor-frontend/    # Vue 3 前端
-├── course-ai-tutor-spring/      # Spring AI 后端
-├── course-ai-tutor-mock/        # Node.js Mock 后端
-├── course-ai-tutor-backend/     # Node.js 后端（旧版）
-├── docker/                      # Docker 配置
-├── deploy.sh                    # 部署脚本
-├── DEPLOYMENT.md                # 部署文档
-└── README.md                    # 本文档
+┌─────────────────────┐
+│   Vue 3 前端         │  :5173 (dev) / :3001 (prod)
+└──────────┬──────────┘
+           │ HTTP/REST + JWT
+           ▼
+┌─────────────────────┐
+│  Node.js 主后端      │  :8081
+│  ┌───────────────┐  │
+│  │  MainAgent    │  │  中枢协调
+│  │  TutorAgent   │  │  知识讲解
+│  │  HelperAgent  │  │  答疑辅导
+│  │  PlannerAgent │  │  学习规划
+│  │  Evaluator    │  │  学习评估
+│  │  Companion    │  │  情感陪伴
+│  └───────────────┘  │
+└──────────┬──────────┘
+           │
+     ┌─────┴─────┐
+     ▼           ▼
+┌─────────┐  ┌──────────┐
+│ SQLite  │  │ RAG 服务  │  :8083
+│ (sql.js)│  │ 知识库    │
+└─────────┘  └──────────┘
 ```
 
-## 🤖 智能体系统
+## 6 个核心智能体
 
-### 规划智能体 (PlannerAgent)
-- 分析学习目标
-- 制定个性化学习计划
-- 推荐学习资源
+| 智能体 | 职责 |
+|--------|------|
+| **MainAgent** | 中枢协调，意图解析，任务调度 |
+| **TutorAgent** | 知识点讲解，苏格拉底式教学 |
+| **HelperAgent** | 答疑辅导，作业帮助 |
+| **PlannerAgent** | 学习规划，目标拆解 |
+| **EvaluatorAgent** | 学习评估，作业批改 |
+| **CompanionAgent** | 情感支持，情绪反馈 |
 
-### 教学智能体 (TutorAgent)
-- 一对一知识点讲解
-- 提供代码示例
-- 生成练习题
+## 情绪反馈系统
 
-### 答疑智能体 (HelperAgent)
-- 实时解答问题
-- 代码调试
-- 引导思考
+CompanionAgent 根据答题正确率动态调整教学策略：
 
-### 评估智能体 (EvaluatorAgent)
-- 作业批改
-- 学习报告生成
-- 薄弱点分析
+| 情绪 | 触发条件 | 教学节奏 |
+|------|---------|---------|
+| 😊 开心 | 正确率 ≥ 80% | 正常 |
+| 🤩 兴奋 | 正确率 ≥ 80% + 连续 7 天 | 快速，挑战升级 |
+| 🙂 平静 | 正确率 50%-80% | 正常 |
+| 😔 关心 | 正确率 < 50% | 慢速，耐心引导 |
 
-### 陪伴智能体 (CompanionAgent) ⭐
-- 聊天交流
-- **情绪反馈**（根据答题情况）
-- 学习追踪
-
-### 智能体管理器 (AgentManager) ⭐
-- 请求智能分发
-- 智能体协调
-- 状态监控
-
-## 📊 技术架构
+## 主要 API
 
 ```
-┌─────────────────┐
-│   Vue 3 前端    │ Port: 3001
-└────────┬────────┘
-         │ HTTP/REST
-         ▼
-┌─────────────────┐
-│ Spring AI 后端  │ Port: 8082
-│  (6 个智能体)    │
-└────────┬────────┘
-         │ JPA
-         ▼
-┌─────────────────┐
-│   H2 Database   │
-└─────────────────┘
+POST /api/auth/register     用户注册
+POST /api/auth/login        用户登录
+GET  /api/auth/me           获取当前用户
+
+POST /api/agent/request     智能体统一入口
+POST /api/agent/request/stream  流式响应
+GET  /api/agent/status      智能体状态
+
+GET  /api/knowledge         知识点列表
+GET  /api/notes             笔记列表
+GET  /api/wrong-questions   错题列表
+GET  /api/progress          学习进度
+GET  /api/health            健康检查
 ```
 
-## 🔧 配置
+## 文档
 
-### API Key 配置
-编辑 `course-ai-tutor-spring/src/main/resources/application.yml`:
-```yaml
-spring:
-  ai:
-    openai:
-      api-key: your-api-key
-      base-url: https://api.siliconflow.cn/v1
-```
+- [快速开始](QUICK_START.md)
+- [系统架构](docs/ARCHITECTURE.md)
+- [OpenClaw 集成](docs/OPENCLAW_GUIDE.md)
+- [RAG 知识库](docs/RAG_GUIDE.md)
+- [部署指南](docs/DEPLOYMENT.md)
+- [故障排除](TROUBLESHOOTING.md)
+- [安全指南](SECURITY.md)
 
-### 数据库配置
-```yaml
-spring:
-  datasource:
-    url: jdbc:h2:mem:coursedb
-    username: sa
-    password: 
-```
+## 技术栈
 
-## 📝 API 文档
+- **后端**: Node.js 18+, Express 4, Anthropic SDK, sql.js, JWT, bcryptjs
+- **前端**: Vue 3, Vite, Element Plus, ECharts, Axios
+- **AI**: Claude API (通过 DashScope 代理)
+- **数据库**: SQLite (嵌入式，通过 sql.js)
 
-### 智能体接口
-```bash
-# 统一请求入口
-POST /api/agent/request
-{
-  "userId": 1,
-  "type": "plan|teach|help|evaluate|chat",
-  "content": "请求内容"
-}
+## 开发计划
 
-# 聊天接口（带情绪反馈）
-POST /api/agent/chat
-{
-  "userId": 1,
-  "message": "你好"
-}
-
-# 获取智能体状态
-GET /api/agent/status
-
-# 获取智能体列表
-GET /api/agent/list
-```
-
-## 🎨 功能特性
-
-### 情绪反馈系统
-CompanionAgent 根据用户答题情况提供不同情绪反馈：
-- 正确率 > 80% → 😊 开心、表扬
-- 正确率 50-80% → 🙂 肯定进步
-- 正确率 < 50% → 😔 安慰、鼓励
-
-### 智能请求分发
-AgentManager 自动识别用户意图并分发给合适的智能体。
-
-### 统一后端接口
-所有智能体通过统一接口访问，简化前端调用。
-
-## 📈 开发计划
-
-- [x] 基础架构搭建
-- [x] 6 个智能体实现
+- [x] 6 个核心智能体
 - [x] 情绪反馈系统
-- [x] 前端界面
-- [x] 域名部署
-- [ ] 用户认证系统
-- [ ] 数据库持久化
-- [ ] 性能优化
-- [ ] 单元测试
+- [x] JWT 认证
+- [x] RAG 知识库集成
+- [x] OpenClaw Skills 扩展
+- [ ] 用户认证系统完善
+- [ ] 生产级数据库（PostgreSQL）
+- [ ] 单元测试覆盖
+- [ ] Docker 部署支持
 
-## 🌐 访问地址
-
-- **本地开发**: http://localhost:3001
-- **生产环境**: https://dewdrop.cc.cd
-- **API 文档**: https://dewdrop.cc.cd/api/agent/list
-
-## 📄 许可证
+## 许可证
 
 MIT License
-
-## 👥 团队
-
-Course AI Team
-
-## 📅 创建时间
-
-2026-03-05

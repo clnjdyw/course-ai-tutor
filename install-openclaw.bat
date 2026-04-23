@@ -29,7 +29,7 @@ echo.
 REM 安装 OpenClaw
 echo [3/8] 安装 OpenClaw...
 echo 注意：如果安装失败，请手动运行：npm install -g openclaw@latest
-call npm install -g openclaw@latest 2>&1 | findstr /v "npm notice"
+call npm install -g openclaw@latest
 if %errorlevel% neq 0 (
     echo [警告] OpenClaw 自动安装失败，请手动安装
     echo 运行：npm install -g openclaw@latest
@@ -110,7 +110,7 @@ echo [8/8] 注册 Skills 到 OpenClaw...
 cd /d "%~dp0openclaw-skills"
 for /d %%i in (skill-*) do (
     echo 注册 %%i...
-    call openclaw skill link .\%%i 2>&1 | findstr /v "npm"
+    call openclaw skill link .\%%i
 )
 echo [完成] Skills 注册完成
 echo.

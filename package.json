@@ -1,0 +1,17 @@
+{
+  "name": "course-ai-tutor",
+  "version": "1.0.0",
+  "description": "基于多智能体协作的 AI 辅导系统",
+  "private": true,
+  "scripts": {
+    "install:backend": "cd course-ai-tutor-backend && npm install",
+    "install:frontend": "cd course-ai-tutor-frontend && npm install",
+    "install:rag": "cd course-ai-tutor-rag && npm install",
+    "install:all": "npm run install:backend && npm run install:frontend && npm run install:rag",
+    "start:backend": "cd course-ai-tutor-backend && node src/server.js",
+    "start:frontend": "cd course-ai-tutor-frontend && npm run dev",
+    "start:rag": "cd course-ai-tutor-rag && node src/server.js",
+    "audit:backend": "cd course-ai-tutor-backend && npm audit",
+    "audit:frontend": "cd course-ai-tutor-frontend && npm audit"
+  }
+}
