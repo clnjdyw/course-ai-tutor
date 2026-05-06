@@ -5,6 +5,7 @@ import com.example.coursetutor.agent.tool.ToolManager;
 import com.example.coursetutor.agent.tool.ToolResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -17,21 +18,24 @@ import java.util.concurrent.*;
 @Slf4j
 @Component
 public class Orchestrator {
-    
+
     @Autowired
     private PlanningEngine planningEngine;
-    
+
     @Autowired
     private ToolManager toolManager;
-    
-    @Autowired
-    private ExecutorService executorService;
-    
+
+    private final ExecutorService executorService;
+
     @Value("${app.agent.max-concurrent-tasks:3}")
     private int maxConcurrentTasks;
-    
+
     @Value("${app.agent.task-timeout-seconds:30}")
     private int taskTimeoutSeconds;
+
+    public Orchestrator() {
+        this.executorService = Executors.newFixedThreadPool(3);
+    }
     
     /**
      * 执行用户请求（完整流程）
@@ -47,7 +51,7 @@ public class Orchestrator {
         try {
             // 1. 创建计划
             log.info("开始执行请求: userId={}, input={}", userId, userInput);
-            result.addLog("start", "开始处理请求", OrchestratorResult.LogLevel.INFO);
+            result.addLog("start", "开始处理请求", OrchestratorResult.LogEntry.LogLevel.INFO);
             
             PlanningResult planResult = planningEngine.createPlan(userInput, userId);
             result.setPlanningResult(planResult);
@@ -61,7 +65,7 @@ public class Orchestrator {
             
             TaskPlan plan = planResult.getTaskPlan();
             plan.setStatus(TaskPlan.PlanStatus.IN_PROGRESS);
-            result.addLog("plan", "计划创建成功，包含 " + plan.getSubTasks().size() + " 个任务", OrchestratorResult.LogLevel.INFO);
+            result.addLog("plan", "计划创建成功，包含 " + plan.getSubTasks().size() + " 个任务", OrchestratorResult.LogEntry.LogLevel.INFO);
             
             // 2. 执行计划
             String response = executePlan(plan, userId);
@@ -70,7 +74,7 @@ public class Orchestrator {
             // 3. 标记完成
             plan.setStatus(TaskPlan.PlanStatus.COMPLETED);
             result.setSuccess(true);
-            result.addLog("complete", "请求处理完成", OrchestratorResult.LogLevel.INFO);
+            result.addLog("complete", "请求处理完成", OrchestratorResult.LogEntry.LogLevel.INFO);
             result.setTotalExecutionTimeMs(System.currentTimeMillis() - startTime);
             
             log.info("请求处理成功: requestId={}, duration={}ms", 
@@ -81,7 +85,7 @@ public class Orchestrator {
             result.setSuccess(false);
             result.setError(e.getMessage());
             result.setResponse("处理您的请求时出现错误，请稍后重试。");
-            result.addLog("error", "处理失败: " + e.getMessage(), OrchestratorResult.LogLevel.ERROR);
+            result.addLog("error", "处理失败: " + e.getMessage(), OrchestratorResult.LogEntry.LogLevel.ERROR);
             result.setTotalExecutionTimeMs(System.currentTimeMillis() - startTime);
         }
         
@@ -162,7 +166,7 @@ public class Orchestrator {
      * 执行调研任务
      */
     private Object executeResearchTask(SubTask task, TaskPlan plan, Long userId) {
-        String topic = plan.getIntent() != null ? plan.getIntent().getMainTopic() : "";
+        String topic = task.getDescription() != null ? task.getDescription() : "";
         
         // 调用知识库工具
         ToolResult result = toolManager.execute("knowledge_base", Map.of(
@@ -182,9 +186,8 @@ public class Orchestrator {
      * 执行教学任务
      */
     private Object executeTeachTask(SubTask task, TaskPlan plan, Long userId) {
-        String topic = plan.getIntent() != null ? plan.getIntent().getMainTopic() : "该主题";
-        String level = plan.getIntent() != null && plan.getIntent().getParams() != null 
-                ? plan.getIntent().getParams().getLevel() : "BEGINNER";
+        String topic = task.getName() != null ? task.getName() : "该主题";
+        String level = "BEGINNER";
         
         // 获取用户上下文
         Map<String, Object> context = new HashMap<>();
@@ -200,7 +203,7 @@ public class Orchestrator {
      * 执行问答任务
      */
     private Object executeAnswerTask(SubTask task, TaskPlan plan, Long userId) {
-        String topic = plan.getIntent() != null ? plan.getIntent().getMainTopic() : "";
+        String topic = task.getName() != null ? task.getName() : "";
         return String.format("针对您的问题「%s」，我来为您解答：\n\n", topic);
     }
     

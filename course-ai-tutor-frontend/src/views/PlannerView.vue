@@ -133,6 +133,10 @@
               <span class="btn-emoji">✏️</span>
               调整
             </el-button>
+            <el-button type="info" @click="showFeedbackDialog = true" size="small" class="action-btn">
+              <span class="btn-emoji">⭐</span>
+              评价
+            </el-button>
           </div>
         </div>
 
@@ -163,6 +167,33 @@
         </template>
       </el-empty>
     </el-card>
+
+    <!-- 评价对话框 -->
+    <el-dialog v-model="showFeedbackDialog" title="⭐ 评价学习计划" width="480px" :close-on-click-modal="false">
+      <div class="feedback-dialog-content">
+        <p class="feedback-hint">你对这个学习计划满意吗？你的反馈将帮助 AI 优化后续方案。</p>
+        <div class="feedback-rating">
+          <span class="rating-label">评分：</span>
+          <el-rate v-model="feedbackForm.rating" :texts="['很差', '较差', '一般', '满意', '非常满意']" show-text />
+        </div>
+        <el-input
+          v-model="feedbackForm.feedback"
+          type="textarea"
+          :rows="4"
+          placeholder="说说你的想法（可选）：哪些部分好？哪些需要改进？"
+          class="feedback-textarea"
+        />
+        <div v-if="adjustmentSuggestion" class="adjustment-suggestion">
+          <el-alert :title="adjustmentSuggestion" type="info" :closable="false" show-icon />
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="showFeedbackDialog = false">取消</el-button>
+        <el-button type="primary" @click="submitFeedback" :loading="feedbackLoading">
+          提交评价
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -170,7 +201,7 @@
 import { ref, computed } from 'vue'
 import { ElMessage, ElNotification } from 'element-plus'
 import MarkdownIt from 'markdown-it'
-import { plannerApi, extractMood } from '@/api'
+import { plannerApi, historyApi, feedbackApi, extractMood } from '@/api'
 
 const md = new MarkdownIt()
 
@@ -184,6 +215,10 @@ const form = ref({
 
 const loading = ref(false)
 const planResult = ref(null)
+const showFeedbackDialog = ref(false)
+const feedbackLoading = ref(false)
+const adjustmentSuggestion = ref('')
+const feedbackForm = ref({ rating: 0, feedback: '' })
 const currentMood = ref(null)
 const streamingContent = ref('')
 
@@ -222,6 +257,17 @@ const createPlan = async () => {
     const mood = extractMood(planResult.value)
     if (mood) currentMood.value = mood
 
+    // 自动保存到历史记录
+    try {
+      await historyApi.savePlannerHistory({
+        goal: form.value.goal,
+        planContent: streamingContent.value,
+        inputParams: JSON.stringify(form.value)
+      })
+    } catch (e) {
+      console.warn('保存规划历史失败:', e)
+    }
+
     ElNotification({
       title: '✅ 计划生成完成',
       message: 'AI 已为你制定个性化学习计划',
@@ -256,13 +302,28 @@ const copyPlan = () => {
 }
 
 // 保存计划
-const savePlan = () => {
-  ElNotification({
-    title: '💾 保存成功',
-    message: '学习计划已保存到本地',
-    type: 'success',
-    duration: 3000
-  })
+const savePlan = async () => {
+  if (!planResult.value?.planContent) {
+    ElMessage.warning('没有可保存的计划')
+    return
+  }
+  try {
+    await historyApi.savePlannerHistory({
+      goal: form.value.goal || '学习计划',
+      planContent: planResult.value.planContent,
+      inputParams: JSON.stringify(form.value),
+      schedule: planResult.value.planContent
+    })
+    ElNotification({
+      title: '💾 保存成功',
+      message: '学习计划已保存',
+      type: 'success',
+      duration: 3000
+    })
+  } catch (error) {
+    console.error('保存计划失败:', error)
+    ElMessage.error('保存失败，请稍后重试')
+  }
 }
 
 // 调整计划
@@ -277,10 +338,11 @@ const adjustPlan = async () => {
 
     loading.value = true
     streamingContent.value = ''
+    const previousPlan = planResult.value?.planContent || ''
     planResult.value = null
 
-    const result = await plannerApi.adjustPlan(null, feedback.value)
-    const content = result?.data?.content || result?.data?.message || result?.data?.planContent
+    const result = await plannerApi.adjustPlan(feedback.value, previousPlan)
+    const content = result?.data?.content || result?.data?.message || result?.data?.planContent || result?.content || result?.message
     if (content) {
       planResult.value = { planContent: content }
       ElNotification({
@@ -298,6 +360,44 @@ const adjustPlan = async () => {
   } finally {
     loading.value = false
     streamingContent.value = ''
+  }
+}
+
+// 提交评价
+const submitFeedback = async () => {
+  if (feedbackForm.value.rating === 0) {
+    ElMessage.warning('请先评分')
+    return
+  }
+  feedbackLoading.value = true
+  adjustmentSuggestion.value = ''
+  try {
+    const res = await feedbackApi.submit({
+      rating: feedbackForm.value.rating,
+      feedback: feedbackForm.value.feedback
+    })
+    if (res?.success) {
+      ElMessage.success('感谢你的评价！')
+      // 尝试获取调整建议
+      try {
+        const adjustRes = await feedbackApi.adjustPlan()
+        if (adjustRes?.success && adjustRes.data?.adjusted) {
+          adjustmentSuggestion.value = adjustRes.data.suggestion
+        }
+      } catch (e) {
+        // 调整建议获取失败不影响主流程
+      }
+      setTimeout(() => {
+        showFeedbackDialog.value = false
+        feedbackForm.value = { rating: 0, feedback: '' }
+        adjustmentSuggestion.value = ''
+      }, 2000)
+    }
+  } catch (error) {
+    console.error('提交评价失败:', error)
+    ElMessage.error('提交失败，请稍后重试')
+  } finally {
+    feedbackLoading.value = false
   }
 }
 </script>
@@ -654,15 +754,6 @@ const adjustPlan = async () => {
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
 /* 动画 */
 @keyframes fadeInUp {
   from {
@@ -718,5 +809,34 @@ const adjustPlan = async () => {
 .streaming-active .plan-content {
   border-color: rgba(102, 126, 234, 0.4);
   box-shadow: 0 0 20px rgba(102, 126, 234, 0.15);
+}
+
+/* 评价对话框 */
+.feedback-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feedback-hint {
+  color: #718096;
+  font-size: 14px;
+  margin: 0;
+}
+
+.feedback-rating {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rating-label {
+  font-size: 14px;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.adjustment-suggestion {
+  margin-top: 8px;
 }
 </style>

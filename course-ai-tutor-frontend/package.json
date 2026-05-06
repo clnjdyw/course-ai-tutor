@@ -7,7 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix",
+    "test": "node tests/run-tests.cjs",
+    "test:playwright": "npx playwright test --config=playwright.config.cjs",
+    "test:report": "npx playwright show-report tests/reports/html",
+    "test:comprehensive": "npx playwright test tests/e2e/comprehensive-test.spec.cjs --config=playwright.config.cjs --reporter=list",
+    "test:generate-report": "node tests/generate-excel-report.cjs"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
@@ -21,10 +26,11 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@vitejs/plugin-vue": "^5.0.4",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.23.0",
     "sass": "^1.72.0",
-    "vite": "^5.2.0"
+    "vite": "^5.4.21"
   }
 }

@@ -8,47 +8,111 @@
               <span class="icon-emoji">📝</span>
             </div>
             <div>
-              <h2>📝 我的笔记</h2>
-              <p>记录学习灵感与重点</p>
+              <h2 v-if="activeNotesTab === 'my'">📝 我的笔记</h2>
+              <h2 v-else>🏛️ 公开笔记广场</h2>
+              <p v-if="activeNotesTab === 'my'">记录学习灵感与重点</p>
+              <p v-else>浏览和互动社区公开笔记</p>
             </div>
           </div>
-          <el-button type="primary" size="large" @click="showCreateDialog = true" class="gradient-btn">
+          <el-button v-if="activeNotesTab === 'my'" type="primary" size="large" @click="showCreateDialog = true" class="gradient-btn">
             <span class="btn-emoji">✨</span>
             新建笔记
           </el-button>
         </div>
       </template>
 
-      <div class="notes-grid">
-        <el-card v-for="(note, index) in notes" :key="note.id" class="note-card" shadow="hover" :style="{ animationDelay: `${index * 0.1}s` }">
-          <div class="note-header">
-            <h3>{{ note.title }}</h3>
-            <div class="note-actions">
-              <el-button type="primary" link @click="editNote(note)" size="large">✏️</el-button>
-              <el-button type="danger" link @click="deleteNote(note.id)" size="large">🗑️</el-button>
-            </div>
-          </div>
-          <div class="note-content" v-html="note.content"></div>
-          <div class="note-footer">
-            <span class="note-tags" v-if="note.tags">
-              <el-tag v-for="tag in parseTags(note.tags)" :key="tag" size="small" class="tag-item">{{ tag }}</el-tag>
-            </span>
-            <span class="note-time">{{ formatDate(note.updated_at) }}</span>
-          </div>
-        </el-card>
+      <!-- Tab 切换 -->
+      <div class="tab-bar">
+        <el-button
+          :type="activeNotesTab === 'my' ? 'primary' : ''"
+          :class="['tab-btn', activeNotesTab === 'my' ? 'active' : '']"
+          @click="switchTab('my')"
+        >
+          我的笔记
+        </el-button>
+        <el-button
+          :type="activeNotesTab === 'public' ? 'primary' : ''"
+          :class="['tab-btn', activeNotesTab === 'public' ? 'active' : '']"
+          @click="switchTab('public')"
+        >
+          公开笔记广场
+        </el-button>
       </div>
 
-      <el-empty
-        v-if="notes.length === 0"
-        description="还没有笔记，点击上方按钮创建第一条笔记吧！"
-        :image-size="200"
-      >
-        <template #image>
-          <div class="empty-illustration">
-            <span class="empty-emoji">📝</span>
-          </div>
-        </template>
-      </el-empty>
+      <!-- 我的笔记 -->
+      <div v-show="activeNotesTab === 'my'">
+        <div class="notes-grid">
+          <el-card v-for="(note, index) in notes" :key="note.id" class="note-card" shadow="hover" :style="{ animationDelay: `${index * 0.1}s` }">
+            <div class="note-header">
+              <h3>{{ note.title }}</h3>
+              <div class="note-actions">
+                <el-button type="primary" link @click="editNote(note)" size="large">✏️</el-button>
+                <el-button type="danger" link @click="deleteNote(note.id)" size="large">🗑️</el-button>
+              </div>
+            </div>
+            <div class="note-content" v-html="note.content"></div>
+            <div class="note-footer">
+              <span class="note-tags" v-if="note.tags">
+                <el-tag v-for="tag in parseTags(note.tags)" :key="tag" size="small" class="tag-item">{{ tag }}</el-tag>
+              </span>
+              <span class="note-time">{{ formatDate(note.updated_at) }}</span>
+            </div>
+          </el-card>
+        </div>
+
+        <el-empty
+          v-if="notes.length === 0"
+          description="还没有笔记，点击上方按钮创建第一条笔记吧！"
+          :image-size="200"
+        >
+          <template #image>
+            <div class="empty-illustration">
+              <span class="empty-emoji">📝</span>
+            </div>
+          </template>
+        </el-empty>
+      </div>
+
+      <!-- 公开笔记广场 -->
+      <div v-show="activeNotesTab === 'public'">
+        <div class="notes-grid">
+          <el-card v-for="(note, index) in publicNotes" :key="note.id" class="note-card" shadow="hover" :style="{ animationDelay: `${index * 0.1}s` }">
+            <div class="note-header">
+              <h3>{{ note.title }}</h3>
+              <span class="note-author">@{{ note.username || '匿名用户' }}</span>
+            </div>
+            <div class="note-content">{{ truncateContent(note.content, 200) }}</div>
+            <div class="note-footer">
+              <span class="note-tags" v-if="note.tags">
+                <el-tag v-for="tag in parseTags(note.tags)" :key="tag" size="small" class="tag-item">{{ tag }}</el-tag>
+              </span>
+            </div>
+            <div class="note-stats">
+              <el-button class="stat-btn" @click="likeNote(note.id)" size="small">
+                ❤️ {{ note.like_count || 0 }}
+              </el-button>
+              <el-button class="stat-btn" @click="showComments(note)" size="small">
+                💬 {{ note.comment_count || 0 }}
+              </el-button>
+              <span class="note-time">{{ formatDate(note.updated_at) }}</span>
+            </div>
+          </el-card>
+        </div>
+
+        <el-empty
+          v-if="publicNotes.length === 0 && !publicLoading"
+          description="还没有公开笔记"
+          :image-size="200"
+        >
+          <template #image>
+            <div class="empty-illustration">
+              <span class="empty-emoji">📭</span>
+            </div>
+          </template>
+        </el-empty>
+
+        <div v-if="publicLoading" class="loading-text">加载中...</div>
+      </div>
     </el-card>
 
     <!-- 创建/编辑笔记弹窗 -->
@@ -77,13 +141,45 @@
         <el-button type="primary" @click="saveNote" class="gradient-btn">保存</el-button>
       </template>
     </el-dialog>
+
+    <!-- 评论弹窗 -->
+    <el-dialog
+      v-model="showCommentsDialog"
+      :title="`评论 - ${currentCommentNote?.title || ''}`"
+      width="600px"
+      :close-on-click-modal="false"
+    >
+      <div class="comments-list">
+        <el-empty v-if="comments.length === 0" description="暂无评论" :image-size="80" />
+        <div v-for="(comment, idx) in comments" :key="comment.id" class="comment-item" :style="{ animationDelay: `${idx * 0.05}s` }">
+          <div class="comment-author">@{{ comment.username || '匿名用户' }}</div>
+          <div class="comment-content">{{ comment.content }}</div>
+          <div class="comment-time">{{ formatDate(comment.created_at) }}</div>
+        </div>
+      </div>
+      <template #footer>
+        <div class="comment-input-area">
+          <el-input
+            v-model="newComment"
+            type="textarea"
+            :rows="3"
+            placeholder="写下你的评论..."
+            class="gradient-input"
+            @keydown.ctrl.enter="submitComment"
+          />
+          <el-button type="primary" @click="submitComment" class="gradient-btn" style="margin-top: 8px;">
+            发表评论
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { notesApi } from '@/api'
+import { notesApi, notesApiExt } from '@/api'
 
 const notes = ref([])
 const showCreateDialog = ref(false)
@@ -94,6 +190,17 @@ const formData = ref({
   tagsInput: '',
   isPublic: false
 })
+
+// 公开笔记相关
+const activeNotesTab = ref('my')
+const publicNotes = ref([])
+const publicLoading = ref(false)
+
+// 评论相关
+const showCommentsDialog = ref(false)
+const currentCommentNote = ref(null)
+const comments = ref([])
+const newComment = ref('')
 
 onMounted(async () => {
   await loadNotes()
@@ -181,6 +288,87 @@ function formatDate(dateStr) {
   const date = new Date(dateStr)
   return date.toLocaleString('zh-CN')
 }
+
+// Tab 切换
+function switchTab(tab) {
+  activeNotesTab.value = tab
+  if (tab === 'public' && publicNotes.value.length === 0) {
+    loadPublicNotes()
+  }
+}
+
+// 加载公开笔记
+async function loadPublicNotes() {
+  publicLoading.value = true
+  try {
+    const response = await notesApiExt.getPublic({ page: 1, limit: 50 })
+    publicNotes.value = response.data || []
+  } catch (error) {
+    console.error('加载公开笔记失败:', error)
+    ElMessage.error('加载公开笔记失败')
+  } finally {
+    publicLoading.value = false
+  }
+}
+
+// 点赞
+async function likeNote(noteId) {
+  try {
+    await notesApiExt.like(noteId)
+    // 刷新公开笔记列表
+    await loadPublicNotes()
+    ElMessage.success('点赞成功')
+  } catch (error) {
+    console.error('点赞失败:', error)
+    ElMessage.error('点赞失败')
+  }
+}
+
+// 显示评论
+function showComments(note) {
+  currentCommentNote.value = note
+  newComment.value = ''
+  showCommentsDialog.value = true
+  loadComments(note.id)
+}
+
+// 加载评论
+async function loadComments(noteId) {
+  try {
+    const response = await notesApiExt.getComments(noteId)
+    comments.value = response.data || []
+  } catch (error) {
+    console.error('加载评论失败:', error)
+  }
+}
+
+// 提交评论
+async function submitComment() {
+  if (!newComment.value.trim()) {
+    ElMessage.warning('请输入评论内容')
+    return
+  }
+  try {
+    await notesApiExt.addComment(currentCommentNote.value.id, { content: newComment.value })
+    newComment.value = ''
+    await loadComments(currentCommentNote.value.id)
+    // 更新评论计数
+    const note = publicNotes.value.find(n => n.id === currentCommentNote.value.id)
+    if (note) {
+      note.comment_count = (note.comment_count || 0) + 1
+    }
+    ElMessage.success('评论发表成功')
+  } catch (error) {
+    console.error('发表评论失败:', error)
+    ElMessage.error('评论发表失败')
+  }
+}
+
+function truncateContent(content, maxLen) {
+  if (!content) return ''
+  const text = content.replace(/<[^>]*>/g, '')
+  return text.length > maxLen ? text.slice(0, maxLen) + '...' : text
+}
 </script>
 
 <style scoped>
@@ -245,6 +433,38 @@ function formatDate(dateStr) {
   margin: 0;
   font-size: 13px;
   color: #718096;
+}
+
+/* Tab 切换栏 */
+.tab-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 4px;
+  background: rgba(102, 126, 234, 0.06);
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.tab-btn {
+  border: none;
+  background: transparent;
+  color: #718096;
+  font-weight: 500;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  padding: 8px 24px;
+}
+
+.tab-btn:hover {
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* 渐变输入框 */
@@ -332,6 +552,12 @@ function formatDate(dateStr) {
   color: #2d3748;
 }
 
+.note-author {
+  font-size: 13px;
+  color: #667eea;
+  font-weight: 500;
+}
+
 .note-actions {
   display: flex;
   gap: 8px;
@@ -361,6 +587,34 @@ function formatDate(dateStr) {
   flex-wrap: wrap;
 }
 
+.note-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.stat-btn {
+  background: rgba(102, 126, 234, 0.08);
+  border: 1px solid rgba(102, 126, 234, 0.15);
+  color: #667eea;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.stat-btn:hover {
+  background: rgba(102, 126, 234, 0.18);
+  transform: translateY(-1px);
+}
+
+.note-time {
+  margin-left: auto;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
 .tag-item {
   border-radius: 6px;
 }
@@ -385,6 +639,53 @@ function formatDate(dateStr) {
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
+}
+
+/* 加载提示 */
+.loading-text {
+  text-align: center;
+  padding: 24px;
+  color: #718096;
+  font-size: 14px;
+}
+
+/* 评论列表 */
+.comments-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.comment-item {
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  background: rgba(102, 126, 234, 0.04);
+  border-radius: 10px;
+  border-left: 3px solid #667eea;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.comment-author {
+  font-size: 13px;
+  color: #667eea;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.comment-content {
+  font-size: 14px;
+  color: #2d3748;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.comment-time {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.comment-input-area {
+  width: 100%;
 }
 
 /* 动画 */

@@ -13,5 +13,8 @@
     "start:rag": "cd course-ai-tutor-rag && node src/server.js",
     "audit:backend": "cd course-ai-tutor-backend && npm audit",
     "audit:frontend": "cd course-ai-tutor-frontend && npm audit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
   }
 }

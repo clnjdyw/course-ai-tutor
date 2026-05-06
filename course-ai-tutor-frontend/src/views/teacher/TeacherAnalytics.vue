@@ -1,196 +1,218 @@
 <template>
-  <div class="analytics-container">
+  <div class="teacher-analytics">
     <el-card class="glass-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <div class="header-left">
             <div class="title-icon" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%)">
-              <span class="title-emoji">📈</span>
+              <el-icon :size="24"><TrendCharts /></el-icon>
             </div>
             <div>
-              <h2>学情分析</h2>
-              <p>AI 驱动的深度学情分析报告</p>
+              <h2>📈 学情分析</h2>
+              <p>多维度洞察学生学习数据</p>
             </div>
           </div>
+          <el-select v-model="days" @change="fetchAll" style="width: 120px">
+            <el-option :value="7" label="近7天" />
+            <el-option :value="14" label="近14天" />
+            <el-option :value="30" label="近30天" />
+          </el-select>
         </div>
       </template>
 
-      <!-- 分析配置 -->
-      <div class="config-section">
-        <el-form :model="form" label-width="120px" size="large">
-          <el-row :gutter="20">
-            <el-col :span="12">
-              <el-form-item label="📋 分析维度">
-                <el-select v-model="form.analysisType" class="full-width">
-                  <el-option label="📊 综合分析" value="comprehensive" />
-                  <el-option label="📉 进度分析" value="progress" />
-                  <el-option label="🔍 薄弱知识点" value="weakness" />
-                  <el-option label="💡 教学建议" value="suggestions" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="👤 目标范围">
-                <el-select v-model="form.scope" class="full-width">
-                  <el-option label="👥 全体学生" value="all" />
-                  <el-option label="📊 按等级筛选" value="byLevel" />
-                  <el-option label="🟢 活跃学生" value="active" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
+      <!-- 图表 -->
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-card class="chart-card">
+            <h3>📈 学习趋势</h3>
+            <div ref="trendRef" class="chart-box"></div>
+          </el-card>
+        </el-col>
+        <el-col :span="12">
+          <el-card class="chart-card">
+            <h3>📊 掌握度分布</h3>
+            <div ref="masteryRef" class="chart-box"></div>
+          </el-card>
+        </el-col>
+      </el-row>
 
-          <el-form-item label="📝 补充说明">
-            <el-input
-              v-model="form.note"
-              type="textarea"
-              :rows="3"
-              placeholder="可选：输入需要特别关注的方面，如「重点关注不及格学生」"
-              class="gradient-input"
-            />
-          </el-form-item>
+      <el-row :gutter="20" style="margin-top: 20px">
+        <el-col :span="12">
+          <el-card class="chart-card">
+            <h3>💪 薄弱点趋势</h3>
+            <div ref="weakRef" class="chart-box"></div>
+          </el-card>
+        </el-col>
+        <el-col :span="12">
+          <el-card class="chart-card">
+            <h3>🌱 成长曲线</h3>
+            <div ref="growthRef" class="chart-box"></div>
+          </el-card>
+        </el-col>
+      </el-row>
 
-          <el-form-item>
-            <el-button
-              type="primary"
-              :loading="analyzing"
-              @click="runAnalysis"
-              class="analyze-btn"
-              size="large"
-            >
-              🤖 {{ analyzing ? 'AI 分析中...' : '生成分析报告' }}
-            </el-button>
-          </el-form-item>
-        </el-form>
-      </div>
-
-      <!-- 分析结果 -->
-      <div v-if="analysisResult" class="result-section">
-        <div class="result-header">
-          <h3>📈 分析报告</h3>
-          <div class="result-actions">
-            <el-button size="small" @click="copyReport">📋 复制</el-button>
-            <el-button type="success" size="small" @click="exportReport">💾 导出</el-button>
-          </div>
-        </div>
-        <div class="analysis-content" v-html="renderedAnalysis"></div>
-      </div>
-
-      <!-- 空状态 -->
-      <el-empty
-        v-if="!analyzing && !analysisResult"
-        description="配置分析参数后点击「生成分析报告」"
-        :image-size="160"
-      >
-        <template #image>
-          <div class="empty-illustration">
-            <span class="empty-emoji">📊</span>
-          </div>
+      <!-- 学生排名 -->
+      <el-card class="ranking-card" style="margin-top: 20px">
+        <template #header>
+          <span>🏆 学生掌握度排名</span>
         </template>
-      </el-empty>
+        <el-table :data="studentRanking" stripe>
+          <el-table-column type="index" label="排名" width="80">
+            <template #default="{ $index }">
+              <span v-if="$index < 3" class="rank-badge">{{ ['🥇', '🥈', '🥉'][$index] }}</span>
+              <span v-else>{{ $index + 1 }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="username" label="学生" />
+          <el-table-column prop="masteredCount" label="已掌握" width="100" sortable />
+          <el-table-column prop="progressCount" label="总进度" width="100" />
+          <el-table-column label="掌握率" width="120" sortable>
+            <template #default="{ row }">
+              <el-progress :percentage="row.progressCount ? Math.round(row.masteredCount / row.progressCount * 100) : 0" :stroke-width="8" />
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-card>
     </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import MarkdownIt from 'markdown-it'
-import { teacherApi, extractContent } from '@/api'
+import { ref, onMounted, nextTick, onUnmounted } from 'vue'
+import * as echarts from 'echarts'
+import { analyticsApi, teacherApi } from '@/api'
+import { TrendCharts } from '@element-plus/icons-vue'
 
-const md = new MarkdownIt()
+const days = ref(30)
+const trendRef = ref(null)
+const masteryRef = ref(null)
+const weakRef = ref(null)
+const growthRef = ref(null)
+const charts = []
+const studentRanking = ref([])
 
-const form = ref({
-  analysisType: 'comprehensive',
-  scope: 'all',
-  note: ''
-})
-
-const analyzing = ref(false)
-const analysisResult = ref(null)
-
-const renderedAnalysis = computed(() => {
-  if (!analysisResult.value) return ''
-  return md.render(analysisResult.value)
-})
-
-const runAnalysis = async () => {
-  analyzing.value = true
+async function fetchAll() {
   try {
-    const response = await teacherApi.systemOverview()
-    const content = extractContent(response)
-    if (content) {
-      analysisResult.value = content
-    } else {
-      throw new Error('empty response')
+    const [trend, mastery, weak, growth, students] = await Promise.all([
+      analyticsApi.getTrend(days.value).catch(() => null),
+      analyticsApi.getMasteryDistribution().catch(() => null),
+      analyticsApi.getWeakPointsTrend().catch(() => null),
+      analyticsApi.getGrowthCurve().catch(() => null),
+      teacherApi.getStudents().catch(() => null)
+    ])
+
+    if (students?.success) {
+      studentRanking.value = (students.data || [])
+        .sort((a, b) => (b.masteredCount || 0) - (a.masteredCount || 0))
+        .slice(0, 20)
     }
-    ElMessage.success('分析报告已生成')
-  } catch (error) {
-    console.error('分析失败:', error)
-    ElMessage.error('AI 分析失败，请检查后端服务是否正常运行')
-    analysisResult.value = '## 分析失败\n\n无法连接到 AI 服务，请联系管理员检查系统状态。'
-  } finally {
-    analyzing.value = false
+
+    await nextTick()
+    if (trend?.success) renderTrend(trend.data)
+    if (mastery?.success) renderMastery(mastery.data)
+    if (weak?.success) renderWeak(weak.data)
+    if (growth?.success) renderGrowth(growth.data)
+  } catch (err) {
+    console.error('获取分析数据失败:', err)
   }
 }
 
-const getAnalysisLabel = (type) => {
-  const map = { comprehensive: '综合分析', progress: '进度分析', weakness: '薄弱知识点', suggestions: '教学建议' }
-  return map[type] || type
+function renderTrend(data) {
+  if (!trendRef.value) return
+  const chart = echarts.init(trendRef.value)
+  charts.push(chart)
+  const arr = Array.isArray(data) ? data : (data.trend || data.data || [])
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: '8%', right: '5%', bottom: '10%', top: '10%' },
+    xAxis: { type: 'category', data: arr.map(d => d.date || d.day || d.label) },
+    yAxis: { type: 'value' },
+    series: [{
+      type: 'line', smooth: true,
+      data: arr.map(d => d.count || d.value || d.records || 0),
+      areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(246,211,101,0.4)' }, { offset: 1, color: 'rgba(246,211,101,0.05)' }]) },
+      itemStyle: { color: '#f6d365' }
+    }]
+  })
 }
 
-const copyReport = () => {
-  navigator.clipboard.writeText(analysisResult.value)
-  ElMessage.success('已复制')
+function renderMastery(data) {
+  if (!masteryRef.value) return
+  const chart = echarts.init(masteryRef.value)
+  charts.push(chart)
+  const arr = Array.isArray(data) ? data : (data.distribution || data.data || [])
+  const colors = ['#a0aec0', '#fbd38d', '#63b3ed', '#68d391', '#f093fb']
+  const labels = ['未开始', '初学', '掌握中', '已掌握', '精通']
+  chart.setOption({
+    tooltip: { trigger: 'item' },
+    xAxis: { type: 'category', data: labels },
+    yAxis: { type: 'value' },
+    grid: { left: '8%', right: '5%', bottom: '10%', top: '10%' },
+    series: [{
+      type: 'bar',
+      data: arr.map((v, i) => ({
+        value: typeof v === 'number' ? v : (v.count || v.value || 0),
+        itemStyle: { color: colors[i] || '#a0aec0' }
+      })),
+      barWidth: '50%',
+      itemStyle: { borderRadius: [4, 4, 0, 0] }
+    }]
+  })
 }
 
-const exportReport = () => {
-  ElMessage.success('报告已导出')
+function renderWeak(data) {
+  if (!weakRef.value) return
+  const chart = echarts.init(weakRef.value)
+  charts.push(chart)
+  const arr = Array.isArray(data) ? data : (data.trend || data.data || [])
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: '8%', right: '5%', bottom: '10%', top: '10%' },
+    xAxis: { type: 'category', data: arr.map(d => d.date || d.day || d.label) },
+    yAxis: { type: 'value' },
+    series: [{
+      type: 'bar',
+      data: arr.map(d => d.count || d.value || d.weakPoints || 0),
+      itemStyle: { color: '#f5576c', borderRadius: [4, 4, 0, 0] }
+    }]
+  })
 }
+
+function renderGrowth(data) {
+  if (!growthRef.value) return
+  const chart = echarts.init(growthRef.value)
+  charts.push(chart)
+  const arr = Array.isArray(data) ? data : (data.curve || data.data || [])
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: '8%', right: '5%', bottom: '10%', top: '10%' },
+    xAxis: { type: 'category', data: arr.map(d => d.date || d.day || d.label) },
+    yAxis: { type: 'value', name: '掌握度' },
+    series: [{
+      type: 'line', smooth: true,
+      data: arr.map(d => d.mastery || d.score || d.value || 0),
+      areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(67,233,123,0.4)' }, { offset: 1, color: 'rgba(67,233,123,0.05)' }]) },
+      itemStyle: { color: '#43e97b' }
+    }]
+  })
+}
+
+onMounted(fetchAll)
+onUnmounted(() => charts.forEach(c => c.dispose()))
 </script>
 
 <style scoped>
-.analytics-container { max-width: 1200px; margin: 0 auto; animation: fadeInUp 0.6s ease; }
-.glass-card {
-  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-.card-header { display: flex; align-items: center; }
+.teacher-analytics { animation: fadeInUp 0.6s ease; }
+.glass-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 16px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; }
 .header-left { display: flex; align-items: center; gap: 16px; }
-.title-icon {
-  width: 50px; height: 50px; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  color: white; box-shadow: 0 4px 12px rgba(246, 211, 101, 0.4); font-size: 28px;
-}
-.card-header h2 { margin: 0 0 4px 0; font-size: 20px; color: #2d3748; }
-.card-header p { margin: 0; font-size: 13px; color: #718096; }
-
-.config-section { padding: 8px 0; }
-.full-width { width: 100%; }
-.gradient-input :deep(.el-textarea__wrapper) {
-  background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(255, 255, 255, 0.8) 100%);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 2px solid rgba(246, 211, 101, 0.2);
-}
-.analyze-btn {
-  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-  border: none; box-shadow: 0 4px 16px rgba(246, 211, 101, 0.3);
-}
-
-.result-section { margin-top: 24px; }
-.result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.result-header h3 { margin: 0; font-size: 18px; color: #2d3748; }
-.result-actions { display: flex; gap: 8px; }
-.analysis-content {
-  background: linear-gradient(135deg, rgba(248, 250, 252, 0.5) 0%, rgba(255, 255, 255, 0.5) 100%);
-  padding: 24px; border-radius: 12px; line-height: 1.8; color: #4a5568;
-  border: 1px solid rgba(246, 211, 101, 0.15);
-}
-.analysis-content :deep(h3) { color: #2d3748; margin-top: 16px; }
-
-.empty-illustration { display: flex; align-items: center; justify-content: center; }
-.empty-emoji { font-size: 60px; }
-
+.title-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; }
+h2 { margin: 0 0 4px; font-size: 20px; color: #2d3748; }
+p { margin: 0; font-size: 13px; color: #718096; }
+.chart-card { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 20px; }
+.chart-card h3 { margin: 0 0 16px; font-size: 16px; color: #2d3748; }
+.chart-box { height: 300px; width: 100%; }
+.ranking-card { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; }
+.rank-badge { font-size: 20px; }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 </style>

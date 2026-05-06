@@ -111,7 +111,7 @@ public class AchievementController {
         } catch (Exception e) {
             log.error("获取成就失败", e);
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "服务器内部错误");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -165,8 +165,17 @@ public class AchievementController {
         } catch (Exception e) {
             log.error("解锁成就失败", e);
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "服务器内部错误");
             return ResponseEntity.status(500).body(response);
         }
+    }
+
+    /**
+     * 检查成就（前端路径兼容）
+     */
+    @PostMapping("/check")
+    public ResponseEntity<Map<String, Object>> checkAchievements(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        return getUserAchievements(authHeader);
     }
 }

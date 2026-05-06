@@ -118,7 +118,7 @@
 
               <div class="header-actions">
                 <el-tooltip content="通知" placement="bottom">
-                  <el-badge :value="5" class="action-item">
+                  <el-badge :value="notificationCount" :hidden="notificationCount === 0" class="action-item">
                     <el-button circle size="large" class="icon-btn">
                       <span class="btn-emoji">🔔</span>
                     </el-button>
@@ -144,17 +144,46 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElConfigProvider, ElMessage } from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import { teacherApi, notificationApi } from '@/api'
 
 const route = useRoute()
 const router = useRouter()
 
 const teacherName = ref(localStorage.getItem('username') || '教师')
 const teacherSubject = ref('计算机科学')
-const studentCount = ref(128)
+const studentCount = ref(0)
+const notificationCount = ref(0)
+let notifTimer = null
+
+async function loadTeacherData() {
+  try {
+    const res = await teacherApi.getStudents()
+    if (res?.success) {
+      studentCount.value = res.count || res.data?.length || 0
+    }
+  } catch { /* silent */ }
+
+  try {
+    const res = await notificationApi.getPending()
+    if (res?.success) {
+      const list = Array.isArray(res.data) ? res.data : []
+      notificationCount.value = list.length
+    }
+  } catch { /* silent */ }
+}
+
+onMounted(() => {
+  loadTeacherData()
+  notifTimer = setInterval(loadTeacherData, 60000)
+})
+
+onUnmounted(() => {
+  if (notifTimer) clearInterval(notifTimer)
+})
 
 const activeMenu = computed(() => route.path)
 

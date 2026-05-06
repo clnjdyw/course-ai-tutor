@@ -65,6 +65,8 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import request from '@/api/request'
+import { Setting, Check } from '@element-plus/icons-vue'
 
 const activeTab = ref('general')
 
@@ -78,21 +80,45 @@ const defaultSettings = {
 
 const settings = reactive({ ...defaultSettings })
 
-onMounted(() => {
+onMounted(async () => {
+  // 先从 localStorage 恢复（快速）
   try {
     const saved = localStorage.getItem('userSettings')
-    if (saved) {
-      Object.assign(settings, JSON.parse(saved))
+    if (saved) Object.assign(settings, JSON.parse(saved))
+  } catch (e) { /* ignore */ }
+
+  // 再从后端获取（权威）
+  const token = localStorage.getItem('token')
+  if (token && !token.startsWith('mock-token-')) {
+    try {
+      const { data } = await request.get('/auth/settings')
+      if (data?.success && data.data && Object.keys(data.data).length > 0) {
+        Object.assign(settings, data.data)
+        localStorage.setItem('userSettings', JSON.stringify(settings))
+      }
+    } catch (e) {
+      console.warn('从后端获取设置失败:', e.message)
     }
-  } catch (e) {
-    console.warn('读取设置失败:', e)
   }
 })
 
-const saveSettings = () => {
+const saveSettings = async () => {
   try {
     localStorage.setItem('userSettings', JSON.stringify(settings))
-    ElMessage.success('设置已保存到本地')
+
+    // 保存到后端
+    const token = localStorage.getItem('token')
+    if (token && !token.startsWith('mock-token-')) {
+      await request.put('/auth/settings', settings)
+    }
+
+    ElMessage.success('设置已保存')
+    // 应用主题
+    if (settings.theme === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
   } catch (e) {
     ElMessage.error('保存失败，请重试')
   }

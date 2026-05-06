@@ -163,7 +163,7 @@ public class SubTask {
     /**
      * 创建子任务构建器
      */
-    public static SubTaskBuilder create(String taskId, String name) {
+    public static SubTask.SubTaskBuilder create(String taskId, String name) {
         return SubTask.builder()
                 .taskId(taskId)
                 .name(name)

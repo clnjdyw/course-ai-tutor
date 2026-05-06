@@ -40,7 +40,7 @@
             <el-icon :size="28"><Clock /></el-icon>
           </div>
           <div class="card-info">
-            <div class="card-value">{{ statistics.totalDuration ? Math.round(statistics.totalDuration / 60) + 'h' : '0h' }}</div>
+            <div class="card-value">{{ statistics.totalDuration ? Math.round(statistics.totalDuration / 3600) + 'h' : '0h' }}</div>
             <div class="card-label">学习时长</div>
           </div>
         </div>
@@ -110,10 +110,9 @@
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import * as echarts from 'echarts'
-import axios from 'axios'
+import { analyticsApi } from '@/api'
 import { ElMessage } from 'element-plus'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082/api'
+import { TrendCharts, Document, Clock, Trophy, Medal } from '@element-plus/icons-vue'
 
 const dateRange = ref([])
 const trendChartRef = ref(null)
@@ -157,13 +156,16 @@ async function fetchStatistics() {
       return
     }
 
-    const { data } = await axios.get(`${API_BASE_URL}/learning/statistics`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    // 并行请求统计数据和分析数据
+    const [statsResp, trendResp, masteryResp] = await Promise.all([
+      analyticsApi.getOverview().catch(() => null),
+      analyticsApi.getTrend(7).catch(() => null),
+      analyticsApi.getMasteryDistribution().catch(() => null)
+    ])
 
-    if (data.success) {
-      // 后端返回扁平结构：data.data.totalRecords, data.data.avgScore, data.data.totalDuration
-      const d = data.data
+    // 处理概览统计
+    if (statsResp?.data?.success) {
+      const d = statsResp.data.data
       statistics.totalRecords = d.totalRecords || 0
       statistics.avgScore = d.avgScore ? Math.round(d.avgScore) : 0
       statistics.totalDuration = d.totalDuration || 0
@@ -179,8 +181,14 @@ async function fetchStatistics() {
         score: r.score ? `${Math.round(r.score)}` : '-',
         status: 'completed'
       }))
-    } else {
-      ElMessage.error(data.message || '获取统计数据失败')
+    }
+
+    // 缓存分析数据供图表使用
+    if (trendResp?.data?.success) {
+      window.__analyticsTrend = trendResp.data.data
+    }
+    if (masteryResp?.data?.success) {
+      window.__analyticsMastery = masteryResp.data.data
     }
   } catch (error) {
     console.error('获取统计数据失败:', error)
@@ -190,10 +198,18 @@ async function fetchStatistics() {
 }
 
 function initCharts() {
-  // 学习趋势折线图（使用已有数据模拟趋势）
+  // 学习趋势折线图
   if (trendChartRef.value) {
     const trendChart = echarts.init(trendChartRef.value)
-    const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+    const trendData = window.__analyticsTrend
+    let days, values
+    if (trendData && Array.isArray(trendData) && trendData.length > 0) {
+      days = trendData.map(d => d.date || d.day || d.label || '-')
+      values = trendData.map(d => d.count || d.value || d.records || 0)
+    } else {
+      days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+      values = [0, 0, 0, 0, 0, 0, 0]
+    }
     trendChart.setOption({
       tooltip: { trigger: 'axis' },
       grid: { left: '8%', right: '5%', bottom: '10%', top: '10%' },
@@ -203,7 +219,7 @@ function initCharts() {
         name: '学习记录数',
         type: 'line',
         smooth: true,
-        data: [2, 4, 3, 5, 7, 4, 6],
+        data: values,
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: 'rgba(102, 126, 234, 0.4)' },
@@ -220,20 +236,36 @@ function initCharts() {
   // 掌握度分布柱状图
   if (masteryChartRef.value) {
     const masteryChart = echarts.init(masteryChartRef.value)
+    const masteryData = window.__analyticsMastery
+    const categories = ['未开始', '初学', '掌握中', '已掌握', '精通']
+    let barData
+    if (masteryData && (Array.isArray(masteryData) || typeof masteryData === 'object')) {
+      const arr = Array.isArray(masteryData) ? masteryData : (masteryData.distribution || masteryData.data || [])
+      if (arr.length > 0) {
+        const colors = ['#a0aec0', '#fbd38d', '#63b3ed', '#68d391', '#f093fb']
+        barData = arr.map((v, i) => ({
+          value: typeof v === 'number' ? v : (v.count || v.value || 0),
+          itemStyle: { color: colors[i] || '#a0aec0' }
+        }))
+      }
+    }
+    if (!barData) {
+      barData = [
+        { value: 0, itemStyle: { color: '#a0aec0' } },
+        { value: 0, itemStyle: { color: '#fbd38d' } },
+        { value: 0, itemStyle: { color: '#63b3ed' } },
+        { value: 0, itemStyle: { color: '#68d391' } },
+        { value: 0, itemStyle: { color: '#f093fb' } }
+      ]
+    }
     masteryChart.setOption({
       tooltip: { trigger: 'item' },
       grid: { left: '8%', right: '5%', bottom: '10%', top: '10%' },
-      xAxis: { type: 'category', data: ['未开始', '初学', '掌握中', '已掌握', '精通'], axisLine: { lineStyle: { color: '#a0aec0' } } },
+      xAxis: { type: 'category', data: categories, axisLine: { lineStyle: { color: '#a0aec0' } } },
       yAxis: { type: 'value', axisLine: { lineStyle: { color: '#a0aec0' } }, splitLine: { lineStyle: { color: '#edf2f7' } } },
       series: [{
         type: 'bar',
-        data: [
-          { value: 5, itemStyle: { color: '#a0aec0' } },
-          { value: 8, itemStyle: { color: '#fbd38d' } },
-          { value: 12, itemStyle: { color: '#63b3ed' } },
-          { value: 6, itemStyle: { color: '#68d391' } },
-          { value: 3, itemStyle: { color: '#f093fb' } }
-        ],
+        data: barData,
         barWidth: '50%',
         itemStyle: { borderRadius: [4, 4, 0, 0] }
       }]

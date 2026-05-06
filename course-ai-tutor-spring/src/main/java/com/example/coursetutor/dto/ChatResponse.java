@@ -12,4 +12,5 @@ public class ChatResponse {
     private String message;
     private CompanionAgent.MoodSnapshot mood;
     private String agentType;
+    private Long timestamp;
 }

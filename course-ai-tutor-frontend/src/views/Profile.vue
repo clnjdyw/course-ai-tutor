@@ -105,19 +105,19 @@
               <el-tab-pane label="账号安全" name="security">
                 <el-form label-width="100px" size="large">
                   <el-form-item label="当前密码">
-                    <el-input type="password" class="gradient-input" />
+                    <el-input v-model="passwordForm.currentPassword" type="password" class="gradient-input" placeholder="请输入当前密码" />
                   </el-form-item>
 
                   <el-form-item label="新密码">
-                    <el-input type="password" class="gradient-input" />
+                    <el-input v-model="passwordForm.newPassword" type="password" class="gradient-input" placeholder="请输入新密码（至少6位）" />
                   </el-form-item>
 
                   <el-form-item label="确认密码">
-                    <el-input type="password" class="gradient-input" />
+                    <el-input v-model="passwordForm.confirmPassword" type="password" class="gradient-input" placeholder="再次输入新密码" />
                   </el-form-item>
 
                   <el-form-item>
-                    <el-button type="warning" class="gradient-btn orange">
+                    <el-button type="warning" class="gradient-btn orange" @click="changePassword" :loading="changingPassword">
                       <el-icon><Lock /></el-icon>
                       修改密码
                     </el-button>
@@ -221,13 +221,19 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElNotification } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-import axios from 'axios'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082/api'
+import request from '@/api/request'
+import { achievementsApi } from '@/api'
+import { User, Camera, Message, Phone, Check, Lock, Document, Clock, Trophy, Medal } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const activeTab = ref('basic')
 const loading = ref(false)
+const changingPassword = ref(false)
+const passwordForm = reactive({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
 
 // 统计数据状态
 const profileStats = reactive({
@@ -262,7 +268,7 @@ const profileForm = reactive({
   username: currentUser.value.username || '',
   email: currentUser.value.email || '',
   phone: currentUser.value.phone || '',
-  bio: currentUser.value.bio || '热爱学习，追求进步',
+  bio: currentUser.value.bio || '',
   learningGoal: currentUser.value.learning_goal || '',
   subjectPreferences: currentUser.value.subject_preferences ? JSON.parse(currentUser.value.subject_preferences) : []
 })
@@ -306,24 +312,20 @@ async function fetchProfileData() {
 
     // 获取学习统计
     const [statsRes, achievementsRes] = await Promise.all([
-      axios.get(`${API_BASE_URL}/learning/statistics`, {
-        headers: { Authorization: `Bearer ${token}` }
-      }),
-      axios.get(`${API_BASE_URL}/achievements`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      request.get('/learning/statistics'),
+      achievementsApi.getAll()
     ])
 
-    if (statsRes.data.success) {
-      const { statistics } = statsRes.data.data
+    if (statsRes.success) {
+      const { statistics } = statsRes.data
       profileStats.planCount = statistics.planCount || 0
       profileStats.totalDuration = statistics.totalDuration ? Math.round(statistics.totalDuration / 3600) : 0
       profileStats.exerciseCount = statistics.exerciseCount || 0
       profileStats.avgScore = statistics.avgScore ? Math.round(statistics.avgScore) : 0
     }
 
-    if (achievementsRes.data.success) {
-      const { unlockedCount } = achievementsRes.data.data
+    if (achievementsRes.success) {
+      const { unlockedCount } = achievementsRes.data
       profileStats.achievementCount = unlockedCount || 0
     }
   } catch (error) {
@@ -363,6 +365,9 @@ const saveProfile = async () => {
       subjectPreferences: JSON.stringify(profileForm.subjectPreferences)
     })
 
+    // 同步用户信息到 store
+    await userStore.syncUserProfile()
+
     ElNotification({
       title: '✅ 保存成功',
       message: '个人信息已更新',
@@ -382,6 +387,9 @@ const savePreferences = async () => {
       subjectPreferences: JSON.stringify(profileForm.subjectPreferences)
     })
 
+    // 同步用户信息到 store
+    await userStore.syncUserProfile()
+
     ElNotification({
       title: '✅ 保存成功',
       message: '学习偏好已更新',
@@ -391,6 +399,38 @@ const savePreferences = async () => {
   } catch (error) {
     console.error('保存偏好失败:', error)
     ElMessage.error('保存失败，请重试')
+  }
+}
+
+const changePassword = async () => {
+  if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+    ElMessage.warning('请填写当前密码和新密码')
+    return
+  }
+  if (passwordForm.newPassword.length < 6) {
+    ElMessage.warning('新密码至少需要6位')
+    return
+  }
+  if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+    ElMessage.warning('两次输入的密码不一致')
+    return
+  }
+
+  changingPassword.value = true
+  try {
+    await request.put('/auth/password', {
+      currentPassword: passwordForm.currentPassword,
+      newPassword: passwordForm.newPassword
+    })
+    ElMessage.success('密码修改成功')
+    passwordForm.currentPassword = ''
+    passwordForm.newPassword = ''
+    passwordForm.confirmPassword = ''
+  } catch (err) {
+    const msg = err.response?.data?.message || '密码修改失败'
+    ElMessage.error(msg)
+  } finally {
+    changingPassword.value = false
   }
 }
 </script>

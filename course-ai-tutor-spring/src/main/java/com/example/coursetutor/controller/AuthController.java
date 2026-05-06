@@ -3,14 +3,18 @@ package com.example.coursetutor.controller;
 import com.example.coursetutor.entity.User;
 import com.example.coursetutor.repository.UserRepository;
 import com.example.coursetutor.util.JwtUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,6 +34,9 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * 用户登录
@@ -58,6 +65,7 @@ public class AuthController {
             }
 
             String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
+            String refreshToken = jwtUtil.generateRefreshToken(user.getId());
 
             Map<String, Object> userData = new HashMap<>();
             userData.put("id", user.getId());
@@ -69,9 +77,12 @@ public class AuthController {
             userData.put("nickname", user.getNickname());
             userData.put("avatarUrl", user.getAvatarUrl());
             userData.put("bio", user.getBio());
+            userData.put("subjectPreferences", parseJsonSafely(user.getSubjectPreferences()));
+            userData.put("learningGoal", user.getLearningGoal());
 
             response.put("success", true);
             response.put("token", token);
+            response.put("refreshToken", refreshToken);
             response.put("user", userData);
             response.put("message", "登录成功");
 
@@ -81,7 +92,55 @@ public class AuthController {
         } catch (Exception e) {
             log.error("登录失败：", e);
             response.put("success", false);
-            response.put("message", "登录失败：" + e.getMessage());
+            response.put("message", "登录失败：用户名或密码错误");
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * 刷新 Access Token
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, Object>> refresh(
+            @RequestBody RefreshTokenRequest request) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String refreshToken = request.getRefreshToken();
+
+            if (refreshToken == null || refreshToken.isBlank()) {
+                response.put("success", false);
+                response.put("message", "未提供refresh token");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            if (!jwtUtil.isRefreshTokenValid(refreshToken)) {
+                response.put("success", false);
+                response.put("message", "无效的或已过期的refresh token");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+            Optional<User> userOpt = userRepository.findById(userId);
+
+            if (userOpt.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "用户不存在");
+                return ResponseEntity.status(404).body(response);
+            }
+
+            User user = userOpt.get();
+            String newAccessToken = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
+
+            response.put("success", true);
+            response.put("token", newAccessToken);
+            response.put("message", "刷新成功");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("刷新token失败：", e);
+            response.put("success", false);
+            response.put("message", "刷新token失败");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -98,18 +157,28 @@ public class AuthController {
         try {
             if (userRepository.existsByUsername(request.getUsername())) {
                 response.put("success", false);
-                response.put("message", "用户名已存在");
+                response.put("message", "注册失败：用户名或邮箱已存在");
                 return ResponseEntity.badRequest().body(response);
             }
 
             if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
                 response.put("success", false);
-                response.put("message", "邮箱已被注册");
+                response.put("message", "注册失败：用户名或邮箱已存在");
                 return ResponseEntity.badRequest().body(response);
             }
 
             String encodedPassword = passwordEncoder.encode(request.getPassword());
-            String role = request.getRole() != null ? request.getRole() : "student";
+            // 只允许 student/teacher 自注册，防止客户端伪造 admin 角色
+            String role = "teacher".equals(request.getRole()) ? "teacher" : "student";
+
+            String prefsJson = null;
+            if (request.getSubjectPreferences() != null && !request.getSubjectPreferences().isEmpty()) {
+                try {
+                    prefsJson = objectMapper.writeValueAsString(request.getSubjectPreferences());
+                } catch (JsonProcessingException e) {
+                    log.warn("subjectPreferences 序列化失败，忽略该字段");
+                }
+            }
 
             User newUser = User.builder()
                 .username(request.getUsername())
@@ -120,6 +189,8 @@ public class AuthController {
                 .experience(0)
                 .status("active")
                 .role(role)
+                .subjectPreferences(prefsJson)
+                .learningGoal(request.getLearningGoal())
                 .build();
 
             userRepository.save(newUser);
@@ -133,7 +204,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("注册失败：", e);
             response.put("success", false);
-            response.put("message", "注册失败：" + e.getMessage());
+            response.put("message", "注册失败，请稍后重试");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -182,6 +253,8 @@ public class AuthController {
             userData.put("nickname", user.getNickname());
             userData.put("avatarUrl", user.getAvatarUrl());
             userData.put("bio", user.getBio());
+            userData.put("subjectPreferences", parseJsonSafely(user.getSubjectPreferences()));
+            userData.put("learningGoal", user.getLearningGoal());
 
             response.put("success", true);
             response.put("user", userData);
@@ -191,7 +264,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("获取用户信息失败：", e);
             response.put("success", false);
-            response.put("message", "获取用户信息失败：" + e.getMessage());
+            response.put("message", "获取用户信息失败");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -239,8 +312,48 @@ public class AuthController {
         } catch (Exception e) {
             log.error("更新用户信息失败：", e);
             response.put("success", false);
-            response.put("message", "更新失败：" + e.getMessage());
+            response.put("message", "更新失败，请稍后重试");
             return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * 注册后初始化学科偏好和学习目标
+     */
+    @PostMapping("/profile/init")
+    public ResponseEntity<Map<String, Object>> initProfile(
+            Authentication authentication,
+            @RequestBody ProfileInitRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Long userId = (Long) authentication.getPrincipal();
+            User user = userRepository.findById(userId).orElseThrow();
+
+            if (request.getSubjectPreferences() != null) {
+                user.setSubjectPreferences(objectMapper.writeValueAsString(request.getSubjectPreferences()));
+            }
+            if (request.getLearningGoal() != null) {
+                user.setLearningGoal(request.getLearningGoal());
+            }
+            userRepository.save(user);
+
+            response.put("success", true);
+            response.put("message", "初始化成功");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("profile/init 失败：", e);
+            response.put("success", false);
+            response.put("message", "初始化失败，请稍后重试");
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    private Object parseJsonSafely(String json) {
+        if (json == null) return null;
+        try {
+            return objectMapper.readValue(json, List.class);
+        } catch (JsonProcessingException e) {
+            return json;
         }
     }
 
@@ -255,11 +368,28 @@ public class AuthController {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class RefreshTokenRequest {
+        private String refreshToken;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class RegisterRequest {
         private String username;
         private String email;
         private String password;
         private String role;
+        private List<String> subjectPreferences;
+        private String learningGoal;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ProfileInitRequest {
+        private List<String> subjectPreferences;
+        private String learningGoal;
     }
 
     @Data

@@ -133,7 +133,7 @@ public class PlanningEngine {
     /**
      * 理解用户意图
      */
-    private IntentUnderstanding understandIntent(String userInput, Long userId) {
+    public IntentUnderstanding understandIntent(String userInput, Long userId) {
         String lowerInput = userInput.toLowerCase();
         
         // 1. 关键词匹配确定意图类型
@@ -253,101 +253,120 @@ public class PlanningEngine {
                 tasks.add(SubTask.create("task_" + taskIndex++, "理解学习目标")
                         .description("了解用户的学习目标和当前水平")
                         .type(SubTask.TaskType.RESEARCH)
-                        .requiredAgent("Manager"));
-                
+                        .requiredAgent("Manager")
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "查询知识点")
                         .description("从知识库查询 " + topic + " 相关内容")
                         .type(SubTask.TaskType.RESEARCH)
-                        .requiredAgent("Tutor"));
-                
+                        .requiredAgent("Tutor")
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "生成教学内容")
                         .description("根据用户水平生成个性化教学内容")
                         .type(SubTask.TaskType.TEACH)
-                        .requiredAgent("Tutor"));
-                
+                        .requiredAgent("Tutor")
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "生成练习题")
                         .description("生成配套练习题")
                         .type(SubTask.TaskType.EXECUTE)
-                        .requiredAgent("Tutor"));
-                
+                        .requiredAgent("Tutor")
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "汇总输出")
                         .description("整合教学内容输出")
-                        .type(SubTask.TaskType.AGGREGATE));
+                        .type(SubTask.TaskType.AGGREGATE)
+                        .build());
             }
-            
+
             case QUESTION -> {
                 // 问答类任务
                 tasks.add(SubTask.create("task_" + taskIndex++, "理解问题")
                         .description("分析用户问题的核心")
                         .type(SubTask.TaskType.RESEARCH)
-                        .requiredAgent("Helper"));
-                
+                        .requiredAgent("Helper")
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "查询知识库")
                         .description("查询相关知识点")
-                        .type(SubTask.TaskType.RESEARCH));
-                
+                        .type(SubTask.TaskType.RESEARCH)
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "生成回答")
                         .description("生成详细解答")
                         .type(SubTask.TaskType.ANSWER)
-                        .requiredAgent("Helper"));
-                
+                        .requiredAgent("Helper")
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "输出结果")
                         .description("整理并输出回答")
-                        .type(SubTask.TaskType.OUTPUT));
+                        .type(SubTask.TaskType.OUTPUT)
+                        .build());
             }
-            
+
             case PLAN -> {
                 // 规划类任务
                 tasks.add(SubTask.create("task_" + taskIndex++, "分析用户情况")
                         .description("了解用户当前水平和可用时间")
                         .type(SubTask.TaskType.RESEARCH)
-                        .requiredAgent("Planner"));
-                
+                        .requiredAgent("Planner")
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "查询知识结构")
                         .description("了解知识点体系")
-                        .type(SubTask.TaskType.RESEARCH));
-                
+                        .type(SubTask.TaskType.RESEARCH)
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "制定学习计划")
                         .description("生成详细学习计划")
                         .type(SubTask.TaskType.PLAN)
-                        .requiredAgent("Planner"));
-                
+                        .requiredAgent("Planner")
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "推荐资源")
                         .description("推荐学习资源")
-                        .type(SubTask.TaskType.EXECUTE));
-                
+                        .type(SubTask.TaskType.EXECUTE)
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "输出计划")
                         .description("整理输出完整计划")
-                        .type(SubTask.TaskType.OUTPUT));
+                        .type(SubTask.TaskType.OUTPUT)
+                        .build());
             }
-            
+
             case ANALYZE, EVALUATE -> {
                 // 分析/评估类任务
                 tasks.add(SubTask.create("task_" + taskIndex++, "获取数据")
                         .description("获取学习数据")
-                        .type(SubTask.TaskType.RESEARCH));
-                
+                        .type(SubTask.TaskType.RESEARCH)
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "执行分析")
                         .description("分析学习情况")
                         .type(SubTask.TaskType.EVALUATE)
-                        .requiredAgent("Evaluator"));
-                
+                        .requiredAgent("Evaluator")
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "生成建议")
                         .description("生成改进建议")
                         .type(SubTask.TaskType.ANSWER)
-                        .requiredAgent("Evaluator"));
-                
+                        .requiredAgent("Evaluator")
+                        .build());
+
                 tasks.add(SubTask.create("task_" + taskIndex++, "输出报告")
                         .description("输出分析报告")
-                        .type(SubTask.TaskType.OUTPUT));
+                        .type(SubTask.TaskType.OUTPUT)
+                        .build());
             }
-            
+
             default -> {
                 // 通用任务
                 tasks.add(SubTask.create("task_" + taskIndex++, "处理请求")
                         .description("处理用户请求")
                         .type(SubTask.TaskType.EXECUTE)
-                        .requiredAgent("Companion"));
+                        .requiredAgent("Companion")
+                        .build());
             }
         }
         

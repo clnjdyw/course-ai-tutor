@@ -22,6 +22,9 @@ public class UserExercise {
     @Column(name = "exercise_id", nullable = false)
     private Long exerciseId;
 
+    @Column(name = "knowledge_point_id")
+    private Long knowledgePointId;
+
     @Column(name = "user_answer", columnDefinition = "TEXT")
     private String userAnswer;
 

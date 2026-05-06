@@ -7,6 +7,7 @@ import com.example.coursetutor.dto.AgentResponse;
 import com.example.coursetutor.dto.ChatRequest;
 import com.example.coursetutor.dto.ChatResponse;
 import com.example.coursetutor.entity.UserMoodEntity;
+import com.example.coursetutor.service.MultimodalService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class AgentController {
 
     @Autowired
     private ChatClient chatClient;
+
+    @Autowired
+    private MultimodalService multimodalService;
 
     /**
      * 统一请求入口
@@ -194,13 +198,55 @@ public class AgentController {
     }
 
     /**
-     * 聊天接口
+     * 聊天接口（支持多模态）
      */
     @PostMapping("/chat")
     public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest request) {
-        log.info("收到聊天请求：{}", request);
+        log.info("收到聊天请求：userId={}, hasImage={}",
+                request.getUserId(),
+                request.getImageBase64() != null);
+
+        // 检查是否包含图片
+        if (request.getImageBase64() != null && !request.getImageBase64().isEmpty()) {
+            log.info("🖼️ 检测到图片，使用多模态处理");
+            return handleMultimodalChat(request);
+        }
+
+        // 纯文本聊天
         ChatResponse response = companionAgent.chat(request);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 处理多模态聊天（包含图片）
+     */
+    private ResponseEntity<ChatResponse> handleMultimodalChat(ChatRequest request) {
+        try {
+            String aiResponse = multimodalService.chatWithImage(
+                    request.getMessage(),
+                    request.getImageBase64(),
+                    request.getImageMimeType()
+            );
+
+            ChatResponse response = ChatResponse.builder()
+                    .success(true)
+                    .message(aiResponse)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("多模态聊天失败", e);
+
+            ChatResponse errorResponse = ChatResponse.builder()
+                    .success(false)
+                    .message("抱歉，图片处理失败：" + e.getMessage())
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
 
     /**

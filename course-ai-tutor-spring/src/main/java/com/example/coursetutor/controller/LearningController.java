@@ -81,7 +81,7 @@ public class LearningController {
         } catch (Exception e) {
             log.error("创建学习计划失败", e);
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "服务器内部错误");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -104,7 +104,7 @@ public class LearningController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "服务器内部错误");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -138,7 +138,7 @@ public class LearningController {
         } catch (Exception e) {
             log.error("保存对话失败", e);
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "服务器内部错误");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -167,7 +167,7 @@ public class LearningController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "服务器内部错误");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -203,7 +203,7 @@ public class LearningController {
         } catch (Exception e) {
             log.error("创建学习记录失败", e);
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "服务器内部错误");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -247,7 +247,7 @@ public class LearningController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "服务器内部错误");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -297,7 +297,7 @@ public class LearningController {
         } catch (Exception e) {
             log.error("提交练习失败", e);
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "服务器内部错误");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -320,7 +320,7 @@ public class LearningController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "服务器内部错误");
             return ResponseEntity.status(500).body(response);
         }
     }

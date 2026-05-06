@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
         log.error("未处理异常: ", e);
         Map<String, Object> response = new HashMap<>();
         response.put("success", false);
-        response.put("message", "服务器内部错误: " + e.getMessage());
+        response.put("message", "服务器内部错误");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 

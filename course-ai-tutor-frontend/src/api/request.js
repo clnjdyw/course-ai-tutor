@@ -47,6 +47,12 @@ request.interceptors.response.use(
   error => {
     console.error('❌ 响应错误:', error)
     
+    // 网络错误
+    if (!error.response) {
+      ElMessage.error('网络连接失败，请检查网络设置')
+      return Promise.reject(error)
+    }
+    
     // 401 未授权，跳转到登录页
     if (error.response?.status === 401) {
       ElNotification({
@@ -60,9 +66,28 @@ request.interceptors.response.use(
       
       // 使用 window.location 而非 useRouter，避免在拦截器中使用 hook
       window.location.href = '/login'
+      return Promise.reject(error)
     }
     
-    // 显示错误消息
+    // 403 禁止访问
+    if (error.response?.status === 403) {
+      ElMessage.error('权限不足，无法访问该资源')
+      return Promise.reject(error)
+    }
+    
+    // 404 资源不存在
+    if (error.response?.status === 404) {
+      ElMessage.error('请求的资源不存在')
+      return Promise.reject(error)
+    }
+    
+    // 500 服务器错误
+    if (error.response?.status >= 500) {
+      ElMessage.error('服务器错误，请稍后重试')
+      return Promise.reject(error)
+    }
+    
+    // 其他错误
     const message = error.response?.data?.message || error.message || '请求失败'
     ElMessage.error(message)
     

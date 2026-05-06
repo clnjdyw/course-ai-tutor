@@ -14,6 +14,8 @@ public interface UserExerciseRepository extends JpaRepository<UserExercise, Long
     List<UserExercise> findByUserIdOrderByCompletedAtDesc(Long userId);
     long countByUserId(Long userId);
     long countByUserIdAndIsCorrectTrue(Long userId);
+    long countByUserIdAndKnowledgePointId(Long userId, Long knowledgePointId);
+    List<UserExercise> findByUserIdAndKnowledgePointId(Long userId, Long knowledgePointId);
 
     @Query("SELECT AVG(ue.score) FROM UserExercise ue WHERE ue.userId = :userId AND ue.score IS NOT NULL")
     Double getAvgScoreByUserId(@Param("userId") Long userId);

@@ -109,7 +109,7 @@ public class CompanionAgent extends BaseAgent {
         return ChatResponse.builder()
             .success(true)
             .message(response)
-            .mood(mood.toUserMoodEntity())
+            .mood(mood)
             .agentType("companion")
             .build();
     }

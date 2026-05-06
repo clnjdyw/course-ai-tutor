@@ -96,6 +96,36 @@
               </div>
             </el-menu-item>
 
+            <el-menu-item index="/exercise-templates" class="menu-item">
+              <div class="menu-content">
+                <span class="menu-icon" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%)">
+                  <span class="icon-emoji">📝</span>
+                </span>
+                <span class="menu-text">自定义题库</span>
+                <span class="menu-badge">模板</span>
+              </div>
+            </el-menu-item>
+
+            <el-menu-item index="/study" class="menu-item">
+              <div class="menu-content">
+                <span class="menu-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+                  <span class="icon-emoji">📖</span>
+                </span>
+                <span class="menu-text">学习会话</span>
+                <span class="menu-badge">AI 陪伴</span>
+              </div>
+            </el-menu-item>
+
+            <el-menu-item index="/companion" class="menu-item">
+              <div class="menu-content">
+                <span class="menu-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">
+                  <span class="icon-emoji">🤖</span>
+                </span>
+                <span class="menu-text">学习伙伴</span>
+                <span class="menu-badge">聊天</span>
+              </div>
+            </el-menu-item>
+
             <el-divider style="margin: 8px 16px; border-color: rgba(102, 126, 234, 0.2);" />
 
             <el-menu-item index="/statistics" class="menu-item">
@@ -114,6 +144,16 @@
                 </span>
                 <span class="menu-text">成就中心</span>
                 <span class="menu-badge">收集徽章</span>
+              </div>
+            </el-menu-item>
+
+            <el-menu-item index="/reviews" class="menu-item">
+              <div class="menu-content">
+                <span class="menu-icon" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%)">
+                  <span class="icon-emoji">🔄</span>
+                </span>
+                <span class="menu-text">复习计划</span>
+                <span class="menu-badge">间隔重复</span>
               </div>
             </el-menu-item>
 
@@ -143,6 +183,15 @@
                   <span class="icon-emoji">❌</span>
                 </span>
                 <span class="menu-text">错题本</span>
+              </div>
+            </el-menu-item>
+
+            <el-menu-item index="/history" class="menu-item">
+              <div class="menu-content">
+                <span class="menu-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+                  <span class="icon-emoji">🕐</span>
+                </span>
+                <span class="menu-text">历史记录</span>
               </div>
             </el-menu-item>
 
@@ -226,7 +275,7 @@
                 </div>
 
                 <el-tooltip content="通知" placement="bottom">
-                  <el-badge :value="3" class="action-item">
+                  <el-badge :value="notificationCount" :hidden="notificationCount === 0" class="action-item">
                     <el-button circle size="large" class="icon-btn">
                       <span class="btn-emoji">🔔</span>
                     </el-button>
@@ -252,14 +301,13 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElConfigProvider, ElMessage } from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { useUserStore } from '@/stores/user'
-import axios from 'axios'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082/api'
+import { notificationApi } from '@/api'
+import request from '@/api/request'
 
 const route = useRoute()
 const router = useRouter()
@@ -272,6 +320,8 @@ const nextLevelExp = computed(() => userLevel.value * 400)
 const userName = computed(() => userStore.user?.nickname || userStore.user?.username || '同学')
 const streakDays = ref(0)
 const dailyTasks = ref(0)
+const notificationCount = ref(0)
+let notificationTimer = null
 
 // 管理员权限判断
 const isAdmin = computed(() => {
@@ -300,11 +350,24 @@ const currentPage = computed(() => {
     '/statistics': '成长记录',
     '/achievements': '成就中心',
     '/battle': 'PK 对战',
+    '/exercise-templates': '自定义题库',
+    '/study': '学习会话',
+    '/companion': '学习伙伴',
+    '/reviews': '复习计划',
     '/notes': '我的笔记',
     '/wrong-questions': '错题本',
+    '/history': '历史记录',
     '/progress': '学习进度',
     '/reminders': '学习提醒',
     '/settings': '系统设置',
+    '/knowledge-graph': '知识图谱',
+    '/knowledge-import': '知识导入',
+    '/knowledge-recommendation': '智能推荐',
+    '/learning-paths': '学习路径',
+    '/analytics': '数据分析',
+    '/notifications': '通知中心',
+    '/community': '学习社区',
+    '/export': '数据导出',
     '/admin': '后台管理'
   }
   return pageMap[route.path] || '首页'
@@ -323,6 +386,18 @@ const handleLogout = () => {
 }
 
 // 获取侧边栏真实数据
+// 获取通知数量
+async function fetchNotificationCount() {
+  try {
+    const res = await notificationApi.getPending()
+    if (res?.success) {
+      notificationCount.value = Array.isArray(res.data) ? res.data.length : (res.data?.count || 0)
+    }
+  } catch {
+    notificationCount.value = 0
+  }
+}
+
 onMounted(async () => {
   try {
     const token = localStorage.getItem('token')
@@ -335,13 +410,9 @@ onMounted(async () => {
       return
     }
 
-    const { data } = await axios.get(`${API_BASE_URL}/learning/statistics`, {
-      headers: { Authorization: `Bearer ${token}` },
-      timeout: 5000
-    })
+    const { data } = await request.get('/learning/statistics')
     if (data.success) {
       const stats = data.data.statistics
-      // 根据学习记录数推算连续天数
       streakDays.value = Math.min(7, Math.ceil(stats.totalDuration / 3600))
       dailyTasks.value = Math.min(3, stats.exerciseCount)
     }
@@ -350,6 +421,14 @@ onMounted(async () => {
     streakDays.value = 0
     dailyTasks.value = 0
   }
+
+  // 轮询通知
+  fetchNotificationCount()
+  notificationTimer = setInterval(fetchNotificationCount, 60000)
+})
+
+onUnmounted(() => {
+  if (notificationTimer) clearInterval(notificationTimer)
 })
 </script>
 

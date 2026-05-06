@@ -1,168 +1,181 @@
 <template>
-  <div class="students-container">
+  <div class="teacher-students">
     <el-card class="glass-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <div class="header-left">
             <div class="title-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">
-              <span class="title-emoji">👥</span>
+              <el-icon :size="24"><User /></el-icon>
             </div>
             <div>
-              <h2>学生管理</h2>
-              <p>管理学生信息，AI 分析学习情况</p>
+              <h2>👥 学生管理</h2>
+              <p>查看和管理所有学生</p>
             </div>
           </div>
           <div class="header-actions">
-            <el-input v-model="searchQuery" placeholder="搜索学生..." prefix-icon="Search" clearable class="search-input" />
+            <el-input v-model="search" placeholder="搜索学生..." clearable style="width: 200px" />
+            <el-button type="primary" @click="fetchStudents" :loading="loading" class="gradient-btn">
+              <el-icon><Refresh /></el-icon>
+              刷新
+            </el-button>
           </div>
         </div>
       </template>
 
-      <!-- 学生列表 -->
-      <el-table :data="filteredStudents" style="width: 100%" v-loading="loading">
-        <el-table-column prop="id" label="ID" width="60" align="center" />
-        <el-table-column prop="name" label="姓名" width="120" />
-        <el-table-column prop="level" label="等级" width="100" align="center">
+      <el-table :data="filteredStudents" stripe v-loading="loading" style="width: 100%">
+        <el-table-column prop="id" label="ID" width="60" />
+        <el-table-column prop="username" label="用户名" width="140" />
+        <el-table-column prop="email" label="邮箱" width="200" />
+        <el-table-column prop="progressCount" label="知识点进度" width="120" sortable />
+        <el-table-column prop="masteredCount" label="已掌握" width="100" sortable />
+        <el-table-column prop="avgScore" label="平均分" width="100" sortable>
           <template #default="{ row }">
-            <el-tag :type="levelType(row.level)" size="small">Lv.{{ row.level }}</el-tag>
+            <el-tag :type="row.avgScore >= 80 ? 'success' : row.avgScore >= 60 ? 'warning' : 'danger'" effect="dark">
+              {{ Math.round(row.avgScore || 0) }}
+            </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="progress" label="学习进度" width="180">
+        <el-table-column prop="totalRecords" label="学习记录" width="100" sortable />
+        <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-progress :percentage="row.progress" :stroke-width="8" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="streak" label="连续学习" width="110" align="center">
-          <template #default="{ row }">
-            🔥 {{ row.streak }}天
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="90" align="center">
-          <template #default="{ row }">
-            <el-tag :type="row.status === '在线' ? 'success' : 'info'" size="small">{{ row.status }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="140" align="center">
-          <template #default="{ row }">
-            <el-button type="primary" size="small" @click="analyzeStudent(row)">🤖 AI 分析</el-button>
+            <el-button size="small" type="primary" @click="viewDetail(row)">详情</el-button>
+            <el-button size="small" type="warning" @click="analyzeStudent(row)">AI 分析</el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <!-- AI 分析对话框 -->
-      <el-dialog v-model="showAnalysis" :title="`🤖 AI 学情分析 - ${selectedStudent?.name}`" width="700px">
-        <div v-if="analyzing" class="analyzing-box">
-          <el-icon class="is-loading" :size="40"><Loading /></el-icon>
-          <p>AI 正在分析学习数据...</p>
-        </div>
-        <div v-else-if="analysisResult" class="analysis-result" v-html="renderedAnalysis"></div>
-        <template #footer>
-          <el-button @click="showAnalysis = false">关闭</el-button>
-        </template>
-      </el-dialog>
+      <el-empty v-if="students.length === 0 && !loading" description="暂无学生数据" />
     </el-card>
+
+    <!-- 学生详情弹窗 -->
+    <el-dialog v-model="showDetail" :title="`学生详情 — ${currentStudent?.username || ''}`" width="700px">
+      <div v-if="studentDetail" class="student-detail">
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="用户名">{{ studentDetail.student?.username }}</el-descriptions-item>
+          <el-descriptions-item label="邮箱">{{ studentDetail.student?.email || '未设置' }}</el-descriptions-item>
+          <el-descriptions-item label="等级">LV.{{ studentDetail.student?.level || 1 }}</el-descriptions-item>
+          <el-descriptions-item label="经验值">{{ studentDetail.student?.experience || 0 }}</el-descriptions-item>
+          <el-descriptions-item label="知识点进度">{{ studentDetail.progress?.length || 0 }} 个</el-descriptions-item>
+          <el-descriptions-item label="学习记录">{{ studentDetail.records?.length || 0 }} 条</el-descriptions-item>
+        </el-descriptions>
+
+        <h4 style="margin-top: 20px">最近学习记录</h4>
+        <el-table :data="(studentDetail.records || []).slice(0, 10)" stripe size="small">
+          <el-table-column prop="topic" label="主题" />
+          <el-table-column prop="score" label="分数" width="80">
+            <template #default="{ row }">
+              <el-tag :type="row.score >= 80 ? 'success' : row.score >= 60 ? 'warning' : 'danger'" size="small">
+                {{ row.score || '-' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="created_at" label="时间" width="160">
+            <template #default="{ row }">{{ formatDate(row.created_at) }}</template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <el-skeleton v-else :rows="5" animated />
+    </el-dialog>
+
+    <!-- AI 分析弹窗 -->
+    <el-dialog v-model="showAnalysis" :title="`AI 学情分析 — ${currentStudent?.username || ''}`" width="700px">
+      <div v-loading="analyzing" class="analysis-content">
+        <div v-if="analysisResult" class="analysis-text" v-html="analysisResult"></div>
+        <el-empty v-else-if="!analyzing" description="暂无分析结果" />
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import MarkdownIt from 'markdown-it'
-import { teacherApi, extractContent } from '@/api'
-
-const md = new MarkdownIt()
+import { ref, computed, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { teacherApi } from '@/api'
+import { Refresh, User } from '@element-plus/icons-vue'
 
 const loading = ref(false)
-const searchQuery = ref('')
+const students = ref([])
+const search = ref('')
+const showDetail = ref(false)
 const showAnalysis = ref(false)
+const currentStudent = ref(null)
+const studentDetail = ref(null)
 const analyzing = ref(false)
-const selectedStudent = ref(null)
-const analysisResult = ref(null)
-
-const renderedAnalysis = computed(() => {
-  if (!analysisResult.value) return ''
-  return md.render(analysisResult.value)
-})
-
-const students = ref([
-  { id: 1, name: '小明', level: 5, progress: 72, streak: 7, status: '在线' },
-  { id: 2, name: '小红', level: 4, progress: 58, streak: 3, status: '离线' },
-  { id: 3, name: '小李', level: 6, progress: 85, streak: 14, status: '在线' },
-  { id: 4, name: '小张', level: 3, progress: 35, streak: 2, status: '在线' },
-  { id: 5, name: '小王', level: 5, progress: 68, streak: 9, status: '离线' },
-  { id: 6, name: '小赵', level: 2, progress: 20, streak: 1, status: '离线' },
-  { id: 7, name: '小陈', level: 7, progress: 92, streak: 21, status: '在线' },
-  { id: 8, name: '小刘', level: 4, progress: 45, streak: 5, status: '在线' }
-])
+const analysisResult = ref('')
 
 const filteredStudents = computed(() => {
-  if (!searchQuery.value) return students.value
-  return students.value.filter(s => s.name.includes(searchQuery.value))
+  if (!search.value) return students.value
+  const q = search.value.toLowerCase()
+  return students.value.filter(s => (s.username || '').toLowerCase().includes(q) || (s.email || '').toLowerCase().includes(q))
 })
 
-const levelType = (level) => {
-  if (level >= 6) return 'success'
-  if (level >= 4) return 'warning'
-  return 'info'
+async function fetchStudents() {
+  loading.value = true
+  try {
+    const res = await teacherApi.getStudents()
+    if (res?.success) {
+      students.value = res.data || []
+    }
+  } catch (err) {
+    console.error('获取学生列表失败:', err)
+  } finally {
+    loading.value = false
+  }
 }
 
-const analyzeStudent = async (student) => {
-  selectedStudent.value = student
+async function viewDetail(student) {
+  currentStudent.value = student
+  showDetail.value = true
+  studentDetail.value = null
+  try {
+    const res = await teacherApi.getStudent(student.id)
+    if (res?.success) {
+      studentDetail.value = res.data
+    }
+  } catch {
+    ElMessage.error('获取学生详情失败')
+  }
+}
+
+async function analyzeStudent(student) {
+  currentStudent.value = student
   showAnalysis.value = true
   analyzing.value = true
-  analysisResult.value = null
-
+  analysisResult.value = ''
   try {
-    const response = await teacherApi.analyzeStudent(student.id)
-    const content = extractContent(response)
-    analysisResult.value = content || 'AI 暂未返回分析结果。'
-  } catch (error) {
-    console.error('分析失败:', error)
-    analysisResult.value = `## 📊 学生 ${student.name} 学习分析报告
-
-### 基本信息
-- **等级**: Lv.${student.level}
-- **学习进度**: ${student.progress}%
-- **连续学习**: ${student.streak} 天
-
-### 学习情况
-- 该学生目前处于**中等水平**，学习态度积极
-- 在基础概念理解方面表现良好
-- 建议在实践操作方面加强练习
-
-### 建议
-1. 增加代码实践练习
-2. 推荐观看相关视频教程
-3. 鼓励参与讨论区互动
-`
+    const res = await teacherApi.analyzeStudent(student.id, 'comprehensive')
+    if (res?.success) {
+      const d = res.data
+      const content = d?.evaluation || d?.content || d?.message || (typeof d === 'string' ? d : JSON.stringify(d))
+      analysisResult.value = content.replace(/\n/g, '<br/>')
+    }
+  } catch {
+    analysisResult.value = '分析失败，请稍后重试'
   } finally {
     analyzing.value = false
   }
 }
+
+function formatDate(t) {
+  if (!t) return ''
+  return new Date(t).toLocaleString('zh-CN')
+}
+
+onMounted(fetchStudents)
 </script>
 
 <style scoped>
-.students-container { max-width: 1200px; margin: 0 auto; animation: fadeInUp 0.6s ease; }
-.glass-card {
-  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
+.teacher-students { animation: fadeInUp 0.6s ease; }
+.glass-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 16px; }
 .card-header { display: flex; justify-content: space-between; align-items: center; }
 .header-left { display: flex; align-items: center; gap: 16px; }
-.header-actions { display: flex; gap: 12px; }
-.title-icon {
-  width: 50px; height: 50px; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  color: white; box-shadow: 0 4px 12px rgba(67, 233, 123, 0.4); font-size: 28px;
-}
-.card-header h2 { margin: 0 0 4px 0; font-size: 20px; color: #2d3748; }
-.card-header p { margin: 0; font-size: 13px; color: #718096; }
-.search-input { width: 200px; }
-
-.analyzing-box { text-align: center; padding: 40px; }
-.analyzing-box p { color: #718096; margin-top: 12px; }
-.analysis-result { line-height: 1.8; color: #4a5568; }
-.analysis-result :deep(h3) { color: #2d3748; margin-top: 16px; }
-
+.header-actions { display: flex; gap: 12px; align-items: center; }
+.title-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; }
+.gradient-btn { background: linear-gradient(135deg, #43e97b, #38f9d7); border: none; }
+h2 { margin: 0 0 4px; font-size: 20px; color: #2d3748; }
+p { margin: 0; font-size: 13px; color: #718096; }
+.student-detail h4 { color: #2d3748; }
+.analysis-content { min-height: 200px; }
+.analysis-text { line-height: 1.8; color: #2d3748; font-size: 14px; }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 </style>

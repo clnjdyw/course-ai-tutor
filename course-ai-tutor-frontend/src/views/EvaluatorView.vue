@@ -280,7 +280,7 @@
 import { ref, computed, watch } from 'vue'
 import { ElMessage, ElNotification } from 'element-plus'
 import MarkdownIt from 'markdown-it'
-import { evaluatorApi, extractMood } from '@/api'
+import { evaluatorApi, historyApi, ocrApi, extractMood } from '@/api'
 
 const md = new MarkdownIt()
 
@@ -289,6 +289,7 @@ const starRating = ref(0)
 const streamingFeedback = ref('')
 const streamingReport = ref('')
 const uploadedImage = ref('')
+const uploadedFile = ref(null)
 const recognizing = ref(false)
 const isRecordingQuestion = ref(false)
 const isRecordingAnswer = ref(false)
@@ -356,6 +357,18 @@ const evaluateExercise = async () => {
 
     const mood = extractMood(evaluateResult.value)
     if (mood) currentMood.value = mood
+
+    // 自动保存到历史记录
+    try {
+      await historyApi.saveConversation('evaluator',
+        exerciseForm.value.question?.substring(0, 50) || '学习评估', [
+          { role: 'user', content: `题目：${exerciseForm.value.question}\n答案：${exerciseForm.value.studentAnswer}` },
+          { role: 'assistant', content: feedbackText }
+        ])
+    } catch (e) {
+      console.warn('保存评估历史失败:', e)
+    }
+
     ElNotification({
       title: '✅ 批改完成',
       message: `评分：${evaluateResult.value.score}分`,
@@ -403,12 +416,14 @@ const handleImageUpload = (file) => {
     ElMessage.success('图片上传成功，点击"识别图片"自动提取答案')
   }
   reader.readAsDataURL(file.raw)
+  uploadedFile.value = file.raw
   return false
 }
 
 // 清除图片
 const clearImage = () => {
   uploadedImage.value = ''
+  uploadedFile.value = null
 }
 
 // 语音输入功能
@@ -529,46 +544,28 @@ const recognizeImage = async () => {
 
   recognizing.value = true
   try {
-    // 模拟模式：使用模拟OCR结果
     const token = localStorage.getItem('token')
     if (!token || token.startsWith('mock-token-')) {
-      console.log('模拟模式：AI自动识别题目和答案')
+      // 模拟模式
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // AI自动识别题目
-      exerciseForm.value.question = `题目：计算等差数列 1, 2, 3, ..., 100 的和
-
-要求：
-1. 写出解题思路
-2. 给出详细计算过程
-3. 得出最终答案`
-
-      // AI自动识别学生答案
-      exerciseForm.value.studentAnswer = `学生答案：
-
-解题思路：
-这是一个等差数列求和问题，数列从1开始，每次增加1，直到100。
-可以使用等差数列求和公式：Sn = n(a1 + an) / 2
-
-计算过程：
-- 首项 a1 = 1
-- 末项 an = 100
-- 项数 n = 100
-- 公差 d = 1
-
-代入公式：
-S100 = 100 × (1 + 100) / 2
-     = 100 × 101 / 2
-     = 10100 / 2
-     = 5050
-
-最终答案：5050`
-
+      exerciseForm.value.question = `题目：计算等差数列 1, 2, 3, ..., 100 的和\n\n要求：\n1. 写出解题思路\n2. 给出详细计算过程\n3. 得出最终答案`
+      exerciseForm.value.studentAnswer = `学生答案：\n\n解题思路：\n这是一个等差数列求和问题，数列从1开始，每次增加1，直到100。\n可以使用等差数列求和公式：Sn = n(a1 + an) / 2\n\n计算过程：\n- 首项 a1 = 1\n- 末项 an = 100\n- 项数 n = 100\n- 公差 d = 1\n\n代入公式：\nS100 = 100 × (1 + 100) / 2\n     = 100 × 101 / 2\n     = 10100 / 2\n     = 5050\n\n最终答案：5050`
       ElMessage.success('AI识别成功！已自动提取题目和学生答案，点击"AI智能批改"开始批改')
     } else {
-      // 真实模式：调用后端OCR API
-      // TODO: 实现真实OCR接口
-      ElMessage.info('OCR功能开发中，当前使用模拟数据')
+      // 真实模式：调用后端 OCR API
+      if (!uploadedFile.value) {
+        ElMessage.warning('图片文件丢失，请重新上传')
+        return
+      }
+      const res = await ocrApi.recognize(uploadedFile.value)
+      if (res?.success && res.data?.text) {
+        const ocrText = res.data.text
+        // 将 OCR 识别的文本填入题目区域，用户可手动调整
+        exerciseForm.value.question = ocrText
+        ElMessage.success(`OCR识别成功（置信度: ${Math.round((res.data.confidence || 0) * 100)}%），请检查并补充学生答案`)
+      } else {
+        ElMessage.warning('OCR未识别到内容，请手动输入')
+      }
     }
   } catch (error) {
     console.error('图片识别失败:', error)

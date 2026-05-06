@@ -15,6 +15,7 @@ public interface LearningRecordRepository extends JpaRepository<LearningRecord, 
     List<LearningRecord> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<LearningRecord> findByUserIdAndActionType(Long userId, String actionType);
     long countByUserId(Long userId);
+    long countByUserIdAndKnowledgePointId(Long userId, Long knowledgePointId);
     long countByUserIdAndCreatedAtAfter(Long userId, LocalDateTime startTime);
 
     @Query("SELECT AVG(lr.score) FROM LearningRecord lr WHERE lr.userId = :userId AND lr.score IS NOT NULL")
@@ -22,4 +23,7 @@ public interface LearningRecordRepository extends JpaRepository<LearningRecord, 
 
     @Query("SELECT SUM(lr.duration) FROM LearningRecord lr WHERE lr.userId = :userId AND lr.duration IS NOT NULL")
     Long getTotalDurationByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT SUM(lr.duration) FROM LearningRecord lr WHERE lr.userId = :userId AND lr.knowledgePointId = :knowledgePointId AND lr.duration IS NOT NULL")
+    Long getTotalDurationByUserIdAndKnowledgePointId(@Param("userId") Long userId, @Param("knowledgePointId") Long knowledgePointId);
 }

@@ -22,6 +22,9 @@ public class LearningRecord {
     @Column(name = "course_id")
     private Long courseId;
 
+    @Column(name = "knowledge_point_id")
+    private Long knowledgePointId;
+
     @Column(name = "action_type", nullable = false, length = 50)
     private String actionType;
 

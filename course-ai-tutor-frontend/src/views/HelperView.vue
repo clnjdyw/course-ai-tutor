@@ -55,11 +55,49 @@
             v-model="question"
             type="textarea"
             :rows="4"
-            placeholder="请输入你的问题，例如：IOC 和 DI 有什么区别？"
+            placeholder="请输入你的问题，例如：IOC 和 DI 有什么区别？或上传图片让 AI 识别"
             class="gradient-input blue"
           />
 
+          <!-- 图片上传和预览 -->
+          <div v-if="imagePreview" class="image-preview-container">
+            <img :src="imagePreview" class="uploaded-image" />
+            <el-button
+              type="danger"
+              size="small"
+              circle
+              @click="removeImage"
+              class="remove-image-btn"
+            >
+              <el-icon><Close /></el-icon>
+            </el-button>
+          </div>
+
           <div class="input-actions">
+            <el-upload
+              ref="uploadRef"
+              :auto-upload="false"
+              :show-file-list="false"
+              :on-change="handleImageChange"
+              accept="image/*"
+            >
+              <el-button type="info">
+                <el-icon><Picture /></el-icon>
+                上传图片
+              </el-button>
+            </el-upload>
+
+            <el-button
+              :type="isRecording ? 'danger' : 'warning'"
+              :loading="isTranscribing"
+              @click="toggleRecording"
+            >
+              <el-icon v-if="!isRecording && !isTranscribing"><Microphone /></el-icon>
+              <el-icon v-else-if="isRecording"><VideoPause /></el-icon>
+              <el-icon v-else class="is-loading"><Loading /></el-icon>
+              {{ isRecording ? '停止录音' : isTranscribing ? '识别中...' : '语音输入' }}
+            </el-button>
+
             <el-button
               type="primary"
               :loading="loading"
@@ -116,27 +154,46 @@
         </el-collapse>
 
         <!-- 回答显示 -->
-        <div v-if="answerResult" class="answer-section">
-          <div class="answer-header">
-            <h3>💡 AI 解答</h3>
-            <div class="answer-actions">
-              <el-button @click="copyAnswer" size="small">
-                <el-icon><DocumentCopy /></el-icon>
-                复制
-              </el-button>
-              <el-button type="success" @click="markHelpful" size="small">
-                <el-icon><ThumbUp /></el-icon>
-                有帮助
-              </el-button>
-              <el-button type="info" @click="askFollowup" size="small">
-                <el-icon><ChatLineRound /></el-icon>
-                追问
-              </el-button>
-            </div>
+      <div v-if="answerResult" class="answer-section">
+        <div class="answer-header">
+          <h3>💡 AI 解答</h3>
+          <div class="answer-actions">
+            <el-button @click="copyAnswer" size="small">
+              <el-icon><DocumentCopy /></el-icon>
+              复制
+            </el-button>
+            <el-button type="success" @click="markHelpful" size="small">
+              <el-icon><ThumbUp /></el-icon>
+              有帮助
+            </el-button>
+            <el-button type="info" @click="askFollowup" size="small">
+              <el-icon><ChatLineRound /></el-icon>
+              追问
+            </el-button>
           </div>
-
-          <div class="answer-content" v-html="renderedAnswer"></div>
         </div>
+
+        <!-- 思考过程 -->
+        <div v-if="thinkingProcess && !answerResult.streaming" class="thinking-process">
+          <div class="thinking-header">
+            <el-icon><Cpu /></el-icon>
+            <span>思考过程</span>
+          </div>
+          <div class="thinking-content">{{ thinkingProcess }}</div>
+        </div>
+
+        <!-- 加载动画 -->
+        <div v-if="answerResult.streaming" class="loading-animation">
+          <div class="loading-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="loading-text">AI 正在思考...</span>
+        </div>
+
+        <div class="answer-content" v-html="renderedAnswer"></div>
+      </div>
 
         <!-- 历史记录 -->
         <div v-if="history.length > 0" class="history-section">
@@ -186,8 +243,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { ElMessage, ElNotification } from 'element-plus'
+import { Close, Picture, Cpu, Microphone, VideoPause } from '@element-plus/icons-vue'
 import MarkdownIt from 'markdown-it'
-import { helperApi, extractContent, extractMood } from '@/api'
+import { helperApi, historyApi, speechApi, extractContent, extractMood } from '@/api'
+import request from '@/api/request'
 
 const md = new MarkdownIt()
 
@@ -196,7 +255,12 @@ const quickQuestions = ref([
   'Spring Boot 自动配置原理',
   '如何理解 MVC 模式？',
   'RESTful API 设计规范',
-  '数据库索引的优缺点'
+  '数据库索引的优缺点',
+  '解释一下闭包的概念和应用',
+  'Vue 3 的 Composition API 有什么优势？',
+  '如何优化前端性能？',
+  '什么是微服务架构？',
+  'Git 的 rebase 和 merge 有什么区别？'
 ])
 
 const question = ref('')
@@ -208,6 +272,19 @@ const debugLoading = ref(false)
 const answerResult = ref(null)
 const history = ref([])
 const currentMood = ref(null)
+const thinkingProcess = ref('')
+
+// 图片相关
+const uploadRef = ref(null)
+const imagePreview = ref(null)
+const imageBase64 = ref(null)
+const imageMimeType = ref(null)
+
+// 语音相关
+const isRecording = ref(false)
+const isTranscribing = ref(false)
+let mediaRecorder = null
+let audioChunks = []
 
 const moodTagType = computed(() => {
   if (!currentMood.value) return 'info'
@@ -230,41 +307,161 @@ const askQuestion = (q) => {
 const clearQuestion = () => {
   question.value = ''
   answerResult.value = null
+  removeImage()
+}
+
+// 处理图片上传
+const handleImageChange = (file) => {
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    imagePreview.value = e.target.result
+    // 提取 Base64（去掉 data:image/xxx;base64, 前缀）
+    const base64String = e.target.result.split(',')[1]
+    imageBase64.value = base64String
+    imageMimeType.value = file.raw.type
+    ElMessage.success('图片已上传，可以提问了')
+  }
+  reader.readAsDataURL(file.raw)
+}
+
+// 移除图片
+const removeImage = () => {
+  imagePreview.value = null
+  imageBase64.value = null
+  imageMimeType.value = null
+}
+
+// 语音录制
+const toggleRecording = async () => {
+  if (isRecording.value) {
+    stopRecording()
+  } else {
+    await startRecording()
+  }
+}
+
+const startRecording = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+    audioChunks = []
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) audioChunks.push(e.data)
+    }
+
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop())
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+      await transcribeAudio(audioBlob)
+    }
+
+    mediaRecorder.start()
+    isRecording.value = true
+    ElMessage.success('开始录音，请说话...')
+  } catch (err) {
+    console.error('录音失败:', err)
+    ElMessage.error('无法访问麦克风，请检查权限')
+  }
+}
+
+const stopRecording = () => {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop()
+  }
+  isRecording.value = false
+}
+
+const transcribeAudio = async (audioBlob) => {
+  isTranscribing.value = true
+  try {
+    const res = await speechApi.transcribe(audioBlob)
+    if (res?.success && res.data?.text) {
+      question.value += res.data.text
+      ElMessage.success('语音识别成功')
+    } else {
+      ElMessage.warning('未识别到内容，请重试')
+    }
+  } catch (err) {
+    console.error('语音转文字失败:', err)
+    ElMessage.error('语音识别失败，请重试')
+  } finally {
+    isTranscribing.value = false
+  }
 }
 
 const submitQuestion = async () => {
-  if (!question.value.trim()) {
-    ElMessage.warning('请输入问题')
+  if (!question.value.trim() && !imageBase64.value) {
+    ElMessage.warning('请输入问题或上传图片')
     return
   }
 
   loading.value = true
+  thinkingProcess.value = ''
   answerResult.value = { answer: '', streaming: true }
 
   try {
-    await helperApi.answerStream({
+    const token = localStorage.getItem('token')
+
+    const requestBody = {
       userId: parseInt(localStorage.getItem('userId') || '1'),
-      content: question.value
-    }, (content, done) => {
-      answerResult.value.answer = content
-      answerResult.value.streaming = !done
+      question: question.value || '请分析这张图片',
+      messageType: imageBase64.value ? 'image' : 'text'
+    }
+
+    if (imageBase64.value) {
+      requestBody.imageUrl = imageBase64.value
+    }
+
+    let fullContent = ''
+    await helperApi.answerStream(requestBody, (chunk, done, metadata) => {
+      fullContent = chunk
+      answerResult.value = {
+        answer: chunk,
+        streaming: !done
+      }
+      
+      if (metadata?.thought) {
+        thinkingProcess.value = metadata.thought
+      }
     })
 
+    answerResult.value = {
+      answer: fullContent,
+      streaming: false
+    }
+
+    const topicText = question.value || '图片识别'
+    const userContent = imageBase64.value
+      ? (question.value ? `${question.value}（附图片）` : '图片识别')
+      : question.value
+
     history.value.unshift({
-      question: question.value,
-      answer: answerResult.value.answer,
-      time: new Date().toLocaleString()
+      question: topicText,
+      answer: fullContent,
+      time: new Date().toLocaleString(),
+      hasImage: !!imageBase64.value
     })
+
+    try {
+      await historyApi.saveConversation('helper', topicText, [
+        { role: 'user', content: userContent },
+        { role: 'assistant', content: fullContent }
+      ])
+    } catch (e) {
+      console.warn('保存答疑历史失败:', e)
+    }
 
     ElNotification({
       title: '✅ 解答完成',
-      message: 'AI 已详细解答你的问题',
+      message: imageBase64.value ? 'AI 已识别图片并解答' : 'AI 已详细解答你的问题',
       type: 'success',
       duration: 3000
     })
   } catch (error) {
     console.error('答疑失败:', error)
-    ElMessage.error('解答失败，请稍后重试')
+    ElMessage.error('解答失败：' + (error.response?.data?.message || error.message))
+    answerResult.value = { answer: '解答失败，请稍后重试', streaming: false }
   } finally {
     loading.value = false
   }
@@ -284,7 +481,7 @@ const debugCode = async () => {
       errorMessage: errorMessage.value
     })
 
-    answerResult.value = response
+    answerResult.value = response.data || response
     ElNotification({
       title: '🔧 调试完成',
       message: 'AI 已分析代码问题',
@@ -532,6 +729,78 @@ const askFollowup = () => {
   gap: 8px;
 }
 
+/* 思考过程 */
+.thinking-process {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(255, 243, 205, 0.5) 0%, rgba(255, 248, 225, 0.5) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  animation: fadeIn 0.5s ease;
+}
+
+.thinking-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #f59e0b;
+  margin-bottom: 8px;
+}
+
+.thinking-content {
+  font-size: 13px;
+  color: #78716c;
+  line-height: 1.6;
+  padding-left: 24px;
+}
+
+/* 加载动画 */
+.loading-animation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(79, 172, 254, 0.1);
+}
+
+.loading-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  animation: loadingBounce 1.4s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+.loading-dots span:nth-child(3) { animation-delay: 0s; }
+
+@keyframes loadingBounce {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.loading-text {
+  color: #718096;
+  font-size: 14px;
+}
+
 .answer-content {
   background: linear-gradient(135deg, rgba(240, 248, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 100%);
   padding: 24px;
@@ -621,6 +890,35 @@ const askFollowup = () => {
   background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
   border-radius: 50%;
   animation: pulse 2s infinite ease-in-out;
+}
+
+/* 图片预览 */
+.image-preview-container {
+  position: relative;
+  margin: 12px 0;
+  display: inline-block;
+}
+
+.uploaded-image {
+  max-width: 300px;
+  max-height: 300px;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #f56c6c;
+  border-color: #f56c6c;
+  color: white;
+}
+
+.remove-image-btn:hover {
+  background: #f78989;
+  border-color: #f78989;
 }
 
 @keyframes pulse {

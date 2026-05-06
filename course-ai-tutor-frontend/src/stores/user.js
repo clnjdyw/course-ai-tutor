@@ -36,48 +36,66 @@ export const useUserStore = defineStore('user', {
      */
     async login(credentials) {
       try {
-        // 模拟登录成功响应
-        console.log('模拟登录请求:', credentials)
-        
-        // 模拟数据
-        const mockResponse = {
-          success: true,
-          token: 'mock-token-' + Date.now(),
-          user: {
-            id: 1,
-            username: credentials.username,
-            email: credentials.username + '@example.com',
-            role: 'student',
-            level: 1,
-            experience: 0,
-            nickname: credentials.username,
-            avatarUrl: '',
-            bio: ''
-          },
-          message: '登录成功'
-        }
-        
-        console.log('模拟登录响应:', mockResponse)
-        
-        // 模拟模式：使用 mock-token-USERID-ROLE 格式，后端可直接解析
-        const userId = mockResponse.user.id
-        const userRole = mockResponse.user.role
-        const mockToken = `mock-token-${userId}-${userRole}`
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api'
 
-        this.token = mockToken
-        this.user = mockResponse.user
-        this.userId = String(mockResponse.user.id)
-        this.role = mockResponse.user.role
+        let loginData
+        try {
+          // 尝试调用真实后端登录
+          const { data } = await axios.post(`${API_BASE_URL}/auth/login`, credentials)
+          loginData = data
+        } catch (err) {
+          // 后端不可用时，回退到 mock 模式
+          console.warn('后端登录失败，使用模拟模式:', err.message)
+          let userRole = 'student'
+          if (credentials.username === 'admin') userRole = 'admin'
+          else if (credentials.username.includes('teacher')) userRole = 'teacher'
+
+          loginData = {
+            success: true,
+            data: {
+              token: `mock-token-${userRole === 'admin' ? 1 : (userRole === 'teacher' ? 2 : 3)}-${userRole}`,
+              user: {
+                id: userRole === 'admin' ? 1 : (userRole === 'teacher' ? 2 : 3),
+                username: credentials.username,
+                email: credentials.username + '@example.com',
+                role: userRole,
+                level: 1,
+                experience: 0
+              }
+            },
+            message: '登录成功'
+          }
+        }
+
+        if (!loginData?.success) {
+          throw new Error(loginData?.message || '登录失败')
+        }
+
+        const { token, user } = loginData.data
+        this.token = token
+        this.user = user
+        this.userId = String(user.id)
+        this.role = user.role || 'student'
         this.isLoggedIn = true
-        
-        // 持久化到 localStorage
-        localStorage.setItem('token', mockToken)
+
+        localStorage.setItem('token', token)
         localStorage.setItem('userId', this.userId)
         localStorage.setItem('userRole', this.role)
         localStorage.setItem('isLoggedIn', 'true')
-        
+
+        // 登录后立即获取完整用户信息（含 level、experience）
+        // 跳过 mock token，因为后端 production 模式不支持 mock token
+        const isMockToken = token.startsWith('mock-token-')
+        if (!isMockToken) {
+          this.fetchCurrentUser().catch(() => {
+            console.warn('⚠️ 获取用户信息失败，但登录仍然有效')
+          })
+        } else {
+          console.log('ℹ️ Mock token 模式：跳过 fetchCurrentUser')
+        }
+
         console.log('✅ 登录成功:', this.username)
-        return mockResponse
+        return loginData
       } catch (error) {
         console.error('❌ 登录失败:', error)
         throw error
@@ -118,37 +136,29 @@ export const useUserStore = defineStore('user', {
       }
 
       try {
-        // 模拟获取用户信息成功响应
-        console.log('模拟获取用户信息')
-        
-        // 模拟数据
-        const mockUser = {
-          id: 1,
-          username: this.user?.username || 'user',
-          email: this.user?.email || 'user@example.com',
-          role: this.role || 'student',
-          level: 1,
-          experience: 0,
-          nickname: this.user?.nickname || '用户',
-          avatarUrl: '',
-          bio: ''
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api'
+        const { data } = await axios.get(`${API_BASE_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${this.token}` }
+        })
+
+        if (data.success) {
+          this.user = { ...this.user, ...data.data.user }
+          this.userId = String(data.data.user.id)
+          this.role = data.data.user.role
+          this.isLoggedIn = true
+          
+          localStorage.setItem('userId', this.userId)
+          localStorage.setItem('userRole', this.role)
+          localStorage.setItem('isLoggedIn', 'true')
+          
+          console.log('✅ 获取用户信息成功')
+          return data.data.user
         }
-        
-        this.user = mockUser
-        this.userId = String(mockUser.id)
-        this.role = mockUser.role
-        this.isLoggedIn = true
-        
-        localStorage.setItem('userId', this.userId)
-        localStorage.setItem('userRole', this.role)
-        localStorage.setItem('isLoggedIn', 'true')
-        
-        console.log('✅ 获取用户信息成功')
-        return mockUser
       } catch (error) {
-        console.error('❌ 获取用户信息失败:', error)
-        this.logout()
-        throw error
+        console.error('❌ 获取用户信息失败:', error.message)
+        // 不要调用 logout()，这会在网络错误时清除所有登录状态
+        // 只记录错误，登录状态仍然有效
+        return null
       }
     },
 
@@ -157,7 +167,7 @@ export const useUserStore = defineStore('user', {
      */
     async updateProfile(profileData) {
       try {
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082/api'
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api'
         const { data } = await axios.put(`${API_BASE_URL}/auth/me`, profileData, {
           headers: { Authorization: `Bearer ${this.token}` }
         })
@@ -174,11 +184,37 @@ export const useUserStore = defineStore('user', {
     },
 
     /**
+     * 同步用户信息（从后端重新获取）
+     */
+    async syncUserProfile() {
+      if (!this.token) {
+        console.warn('⚠️ 没有 token，无法同步用户信息')
+        return null
+      }
+
+      try {
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api'
+        const { data } = await axios.get(`${API_BASE_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${this.token}` }
+        })
+
+        if (data.success) {
+          this.user = { ...this.user, ...data.data.user }
+          console.log('✅ 用户信息同步成功')
+          return data.data.user
+        }
+      } catch (error) {
+        console.error('❌ 同步用户信息失败:', error)
+        throw error
+      }
+    },
+
+    /**
      * 修改密码
      */
     async changePassword(passwordData) {
       try {
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082/api'
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api'
         const { data } = await axios.put(`${API_BASE_URL}/auth/password`, passwordData, {
           headers: { Authorization: `Bearer ${this.token}` }
         })
@@ -224,11 +260,13 @@ export const useUserStore = defineStore('user', {
         this.userId = userId
         this.role = role || 'student'
         this.isLoggedIn = true
-        
-        // 尝试获取用户信息
-        this.fetchCurrentUser().catch(() => {
-          console.warn('⚠️ 自动登录失败，token 可能已过期')
-        })
+
+        // 尝试获取用户信息（跳过 mock token）
+        if (!token.startsWith('mock-token-')) {
+          this.fetchCurrentUser().catch(() => {
+            console.warn('⚠️ 自动登录失败，token 可能已过期')
+          })
+        }
       }
     }
   },

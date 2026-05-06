@@ -69,6 +69,7 @@ if (fs.existsSync(dbPath)) {
       query TEXT NOT NULL,
       results_count INTEGER,
       response_time_ms INTEGER,
+      knowledge_base_id INTEGER,
       user_id INTEGER,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )

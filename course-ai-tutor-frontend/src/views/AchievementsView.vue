@@ -91,10 +91,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import { achievementsApi } from '@/api'
 import { ElMessage } from 'element-plus'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082/api'
 
 const activeCategory = ref('all')
 
@@ -142,9 +140,7 @@ async function fetchAchievements() {
       return
     }
 
-    const { data } = await axios.get(`${API_BASE_URL}/achievements`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const { data } = await achievementsApi.getAll()
 
     if (data.success) {
       achievements.value = (data.data.achievements || []).map(a => ({

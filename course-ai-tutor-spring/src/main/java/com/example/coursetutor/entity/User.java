@@ -52,6 +52,13 @@ public class User {
     @Column(length = 20)
     @Builder.Default
     private String role = "student";
+
+    // JSON 数组字符串，如 ["数学","物理"]
+    @Column(columnDefinition = "TEXT")
+    private String subjectPreferences;
+
+    @Column(columnDefinition = "TEXT")
+    private String learningGoal;
     
     @Column(name = "created_at")
     @Builder.Default

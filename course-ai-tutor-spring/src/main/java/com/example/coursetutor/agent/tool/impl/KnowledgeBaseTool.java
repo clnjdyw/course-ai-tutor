@@ -138,7 +138,7 @@ public class KnowledgeBaseTool implements Tool {
             courses = courseRepository.findAll();
         } else {
             courses = courseRepository.findAll().stream()
-                    .filter(c -> c.getName().contains(query) || 
+                    .filter(c -> c.getTitle().contains(query) ||
                                 (c.getDescription() != null && c.getDescription().contains(query)))
                     .collect(Collectors.toList());
         }
@@ -181,7 +181,7 @@ public class KnowledgeBaseTool implements Tool {
         } else {
             exercises = exerciseRepository.findAll().stream()
                     .filter(e -> e.getQuestion().contains(query) ||
-                                (e.getContent() != null && e.getContent().contains(query)))
+                                (e.getExplanation() != null && e.getExplanation().contains(query)))
                     .collect(Collectors.toList());
         }
         
@@ -223,8 +223,8 @@ public class KnowledgeBaseTool implements Tool {
             plans = studyPlanRepository.findAll();
         } else {
             plans = studyPlanRepository.findAll().stream()
-                    .filter(p -> p.getTitle().contains(query) ||
-                                (p.getContent() != null && p.getContent().contains(query)))
+                    .filter(p -> (p.getGoal() != null && p.getGoal().contains(query)) ||
+                                (p.getPlanContent() != null && p.getPlanContent().contains(query)))
                     .collect(Collectors.toList());
         }
         
@@ -243,9 +243,9 @@ public class KnowledgeBaseTool implements Tool {
     private Map<String, Object> courseToMap(Course course) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", course.getId());
-        map.put("name", course.getName());
+        map.put("title", course.getTitle());
         map.put("description", course.getDescription());
-        map.put("difficulty", course.getDifficulty());
+        map.put("category", course.getCategory());
         map.put("createdAt", course.getCreatedAt());
         return map;
     }
@@ -262,8 +262,8 @@ public class KnowledgeBaseTool implements Tool {
     private Map<String, Object> planToMap(StudyPlan plan) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", plan.getId());
-        map.put("title", plan.getTitle());
-        map.put("content", plan.getContent());
+        map.put("goal", plan.getGoal());
+        map.put("planContent", plan.getPlanContent());
         map.put("status", plan.getStatus());
         return map;
     }

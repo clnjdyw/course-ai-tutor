@@ -18,6 +18,9 @@ public class JwtUtil {
     @Value("${app.jwt.expiration-ms}")
     private long expirationMs;
 
+    @Value("${app.jwt.refresh-expiration-ms}")
+    private long refreshExpirationMs;
+
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
@@ -60,6 +63,26 @@ public class JwtUtil {
         try {
             Claims claims = parseToken(token);
             return !claims.getExpiration().before(new Date());
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public String generateRefreshToken(Long userId) {
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .claim("type", "refresh")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpirationMs))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public boolean isRefreshTokenValid(String token) {
+        try {
+            Claims claims = parseToken(token);
+            return "refresh".equals(claims.get("type", String.class))
+                    && !claims.getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }

@@ -214,7 +214,7 @@ export const useLearningStore = defineStore('learning', {
           return
         }
 
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082/api'
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api'
 
         // 加载学习统计
         const { data: statsData } = await axios.get(`${API_BASE_URL}/learning/statistics`, {

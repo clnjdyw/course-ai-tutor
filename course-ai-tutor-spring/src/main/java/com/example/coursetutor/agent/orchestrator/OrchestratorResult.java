@@ -18,37 +18,37 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrchestratorResult {
-    
+
     /** 请求ID */
     private String requestId;
-    
+
     /** 用户输入 */
     private String userInput;
-    
+
     /** 用户ID */
     private Long userId;
-    
+
     /** 是否成功 */
     private boolean success;
-    
+
     /** 最终响应 */
     private String response;
-    
+
     /** 错误信息 */
     private String error;
-    
+
     /** 规划结果 */
     private PlanningResult planningResult;
-    
+
     /** 执行日志 */
     private List<LogEntry> logs;
-    
+
     /** 总执行时间（毫秒） */
     private long totalExecutionTimeMs;
-    
+
     /** 警告 */
     private List<String> warnings;
-    
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -58,16 +58,16 @@ public class OrchestratorResult {
         private String phase;
         private String message;
         private LogLevel level;
-        
+
         public enum LogLevel {
             INFO, WARN, ERROR, DEBUG
         }
     }
-    
+
     /**
      * 添加日志
      */
-    public void addLog(String phase, String message, LogLevel level) {
+    public void addLog(String phase, String message, LogEntry.LogLevel level) {
         if (logs == null) {
             logs = new ArrayList<>();
         }
@@ -78,7 +78,7 @@ public class OrchestratorResult {
                 .level(level)
                 .build());
     }
-    
+
     /**
      * 获取任务数量
      */
@@ -88,7 +88,7 @@ public class OrchestratorResult {
         }
         return planningResult.getTaskPlan().getSubTasks().size();
     }
-    
+
     /**
      * 获取已完成任务数
      */
@@ -96,4 +96,8 @@ public class OrchestratorResult {
         if (planningResult == null || planningResult.getTaskPlan() == null) {
             return 0;
         }
-        return (int) planningResult.getTaskPlan().getSubTasks().stream
+        return (int) planningResult.getTaskPlan().getSubTasks().stream()
+                .filter(t -> "COMPLETED".equals(t.getStatus()))
+                .count();
+    }
+}

@@ -153,7 +153,7 @@ public class ToolController {
                     
                     ToolResult result = toolManager.execute(toolName, params);
                     
-                    return (Map<String, Object>) Map.of(
+                    return Map.<String, Object>of(
                             "tool", toolName,
                             "success", result.isSuccess(),
                             "result", result.getContent(),

@@ -155,7 +155,9 @@ public class TextTool implements Tool {
                 if (current.length() > 0) {
                     try {
                         numbers.add(Double.parseDouble(current.toString()));
-                    } catch (NumberFormatException ignored) {}
+                    } catch (NumberFormatException e) {
+                        log.warn("无法解析数字: {}", current);
+                    }
                     current = new StringBuilder();
                     hasDecimal = false;
                 }
@@ -165,7 +167,9 @@ public class TextTool implements Tool {
         if (current.length() > 0) {
             try {
                 numbers.add(Double.parseDouble(current.toString()));
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException e) {
+                log.warn("无法解析数字: {}", current);
+            }
         }
         
         return ToolResult.success(numbers.toString());

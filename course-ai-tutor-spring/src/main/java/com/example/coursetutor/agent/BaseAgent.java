@@ -5,12 +5,6 @@ import com.example.coursetutor.agent.tool.ToolManager;
 import com.example.coursetutor.agent.tool.ToolResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.ChatMemory;
-import org.springframework.ai.chat.client.advisor.ChatMemoryAdvisor;
-import org.springframework.ai.chat.client.advisor.SimpleChatAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -24,17 +18,15 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public abstract class BaseAgent {
-    
+
     @Autowired
     protected ChatClient chatClient;
-    
+
     @Autowired
     private ToolManager toolManager;
-    
+
     @Value("${app.agent.max-tool-calls:10}")
     private int maxToolCalls;
-    
-    protected ChatMemory chatMemory;
     
     /**
      * 调用 AI 模型（基础版）
@@ -116,7 +108,6 @@ public abstract class BaseAgent {
                 String response = chatClient.prompt()
                         .system(systemPrompt + "\n\n对话历史:\n" + conversationHistory)
                         .user("请根据对话历史和上下文，回答用户问题或调用工具。")
-                        .functions(functionSchemas.toArray(new Map[0]))
                         .call()
                         .content();
                 

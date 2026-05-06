@@ -3,8 +3,12 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import db, { saveDb } from './database.js'
 import { getEmbedding, cosineSimilarity, chunkText, preprocessText, getCacheStats, clearCache } from './embedding.js'
+import retrievalEngine from './retrieval-engine.js'
+import vectorIndex from './vector-index.js'
 
 dotenv.config()
+
+vectorIndex.initialize()
 
 const app = express()
 const PORT = process.env.PORT || 8083
@@ -50,7 +54,12 @@ app.get('/api/health', (req, res) => {
 
 // 获取知识库列表
 app.get('/api/knowledge-bases', (req, res) => {
-  const knowledgeBases = queryAll('SELECT * FROM knowledge_bases')
+  const knowledgeBases = queryAll(`
+    SELECT kb.*, COUNT(d.id) as document_count
+    FROM knowledge_bases kb
+    LEFT JOIN documents d ON d.knowledge_base_id = kb.id
+    GROUP BY kb.id
+  `)
   res.json({ success: true, data: knowledgeBases })
 })
 
@@ -64,11 +73,29 @@ app.post('/api/knowledge-bases', (req, res) => {
   )
   
   saveDb()
-  res.json({ 
-    success: true, 
+  res.json({
+    success: true,
     message: '知识库创建成功',
     data: { id }
   })
+})
+
+// 删除知识库（级联删除文档和分块）
+app.delete('/api/knowledge-bases/:id', (req, res) => {
+  const { id } = req.params
+  try {
+    // 先删除关联的 chunks 和 documents
+    const docs = queryAll('SELECT id FROM documents WHERE knowledge_base_id = ?', [id])
+    for (const doc of docs) {
+      query('DELETE FROM chunks WHERE document_id = ?', [doc.id])
+    }
+    query('DELETE FROM documents WHERE knowledge_base_id = ?', [id])
+    query('DELETE FROM knowledge_bases WHERE id = ?', [id])
+    saveDb()
+    res.json({ success: true, message: '知识库已删除' })
+  } catch (err) {
+    res.status(500).json({ success: false, message: '删除失败: ' + err.message })
+  }
 })
 
 // 辅助函数：延迟执行
@@ -179,72 +206,23 @@ app.post('/api/documents', async (req, res) => {
 
 // 检索相似内容
 app.post('/api/retrieve', async (req, res) => {
-  const { query: searchQuery, knowledgeBaseId, topK = 5, threshold = 0.7 } = req.body
+  const { query: searchQuery, knowledgeBaseId, topK = 5, threshold = 0.7, useHybrid = true } = req.body
   
   if (!searchQuery) {
     return res.json({ success: false, message: '查询内容不能为空' })
   }
   
-  const startTime = Date.now()
-  
   try {
-    // 获取查询向量
-    const queryEmbedding = await getEmbedding(preprocessText(searchQuery))
-    
-    // 获取所有分块（使用参数化查询防止 SQL 注入）
-    let sql = `
-      SELECT c.id, c.document_id, c.content, c.embedding, d.title, d.knowledge_base_id
-      FROM chunks c
-      JOIN documents d ON c.document_id = d.id
-      WHERE d.status = 'processed'
-    `
-    
-    const params = []
-    if (knowledgeBaseId) {
-      sql += ` AND d.knowledge_base_id = ?`
-      params.push(knowledgeBaseId)
-    }
-    
-    const chunks = queryAll(sql, params)
-    
-    // 计算相似度
-    const results = chunks.map(chunk => {
-      const chunkEmbedding = JSON.parse(chunk.embedding)
-      const similarity = cosineSimilarity(queryEmbedding, chunkEmbedding)
-      
-      return {
-        id: chunk.id,
-        documentId: chunk.document_id,
-        title: chunk.title,
-        content: chunk.content,
-        similarity,
-        knowledgeBaseId: chunk.knowledge_base_id
-      }
+    const result = await retrievalEngine.retrieve(searchQuery, {
+      knowledgeBaseId,
+      topK,
+      threshold,
+      useHybrid
     })
-    
-    // 过滤并排序
-    const filteredResults = results
-      .filter(r => r.similarity >= threshold)
-      .sort((a, b) => b.similarity - a.similarity)
-      .slice(0, topK)
-    
-    const responseTime = Date.now() - startTime
-    
-    // 记录检索历史
-    query(
-      `INSERT INTO retrieval_history (query, results_count, response_time_ms)
-       VALUES (?, ?, ?)`,
-      [searchQuery, filteredResults.length, responseTime]
-    )
     
     res.json({
       success: true,
-      data: {
-        query: searchQuery,
-        results: filteredResults,
-        count: filteredResults.length,
-        responseTime
-      }
+      data: result
     })
   } catch (error) {
     console.error('检索失败:', error)
@@ -255,22 +233,23 @@ app.post('/api/retrieve', async (req, res) => {
 // 获取文档列表
 app.get('/api/documents', (req, res) => {
   const { knowledgeBaseId } = req.query
-  
+
   let sql = `
-    SELECT d.*, k.name as knowledge_base_name
+    SELECT d.*, k.name as knowledge_base_name,
+           (SELECT COUNT(*) FROM chunks c WHERE c.document_id = d.id) as chunk_count
     FROM documents d
     LEFT JOIN knowledge_bases k ON d.knowledge_base_id = k.id
     WHERE 1=1
   `
-  
+
   const params = []
   if (knowledgeBaseId) {
     sql += ` AND d.knowledge_base_id = ?`
     params.push(knowledgeBaseId)
   }
-  
+
   sql += ' ORDER BY d.created_at DESC'
-  
+
   const documents = queryAll(sql, params)
   res.json({ success: true, data: documents })
 })
@@ -309,13 +288,44 @@ app.post('/api/cache/clear', (req, res) => {
 
 // 获取检索统计
 app.get('/api/stats', (req, res) => {
+  const kbCount = queryAll('SELECT COUNT(*) as count FROM knowledge_bases')[0].count
+  const docCount = queryAll('SELECT COUNT(*) as count FROM documents')[0].count
+  const chunkCount = queryAll('SELECT COUNT(*) as count FROM chunks')[0].count
+  const retrievalCount = queryAll('SELECT COUNT(*) as count FROM retrieval_history')[0].count
+
   const stats = {
-    knowledgeBases: queryAll('SELECT COUNT(*) as count FROM knowledge_bases')[0].count,
-    documents: queryAll('SELECT COUNT(*) as count FROM documents')[0].count,
-    chunks: queryAll('SELECT COUNT(*) as count FROM chunks')[0].count,
-    retrievals: queryAll('SELECT COUNT(*) as count FROM retrieval_history')[0].count
+    knowledgeBases: kbCount,
+    documents: docCount,
+    chunks: chunkCount,
+    retrievals: retrievalCount,
+    totalKnowledgeBases: kbCount,
+    totalDocuments: docCount,
+    totalChunks: chunkCount,
+    cacheHitRate: '0%'
   }
-  
+
+  res.json({ success: true, data: stats })
+})
+
+app.get('/api/search/history', (req, res) => {
+  const { limit = 50 } = req.query
+  const history = retrievalEngine.getSearchHistory(parseInt(limit))
+  res.json({ success: true, data: history })
+})
+
+app.get('/api/search/popular', (req, res) => {
+  const { limit = 20 } = req.query
+  const popular = retrievalEngine.getPopularQueries(parseInt(limit))
+  res.json({ success: true, data: popular })
+})
+
+app.post('/api/optimize', (req, res) => {
+  vectorIndex.optimizeRetrieval()
+  res.json({ success: true, message: '数据库优化完成' })
+})
+
+app.get('/api/vector-index/stats', (req, res) => {
+  const stats = vectorIndex.getStats()
   res.json({ success: true, data: stats })
 })
 

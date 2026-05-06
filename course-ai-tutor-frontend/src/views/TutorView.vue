@@ -59,6 +59,16 @@
               <div class="message-content">
                 <div class="message-bubble" :class="message.type">
                   <img v-if="message.image" :src="message.image" alt="uploaded image" class="message-image" />
+                  
+                  <!-- 思考过程 -->
+                  <div v-if="message.thinking && !message.streaming" class="message-thinking">
+                    <div class="thinking-header">
+                      <el-icon><Cpu /></el-icon>
+                      <span>思考过程</span>
+                    </div>
+                    <div class="thinking-text">{{ message.thinking }}</div>
+                  </div>
+                  
                   <div class="message-text" v-html="renderMessage(message.content, message.streaming)"></div>
                 </div>
                 <div class="message-time">
@@ -134,6 +144,16 @@
                 <el-button text size="small" @click="$refs.fileInputRef.click()" :disabled="loading">
                   🖼️ 图片
                 </el-button>
+                <el-button
+                  text
+                  size="small"
+                  :type="isRecording ? 'danger' : ''"
+                  :loading="isTranscribing"
+                  @click="toggleRecording"
+                  :disabled="loading"
+                >
+                  {{ isRecording ? '⏹ 停止' : isTranscribing ? '识别中...' : '🎤 语音' }}
+                </el-button>
                 <el-tag v-if="uploadedImage" size="small" closable @close="uploadedImage = null">
                   已选择图片
                 </el-tag>
@@ -158,8 +178,9 @@
 <script setup>
 import { ref, nextTick, computed, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Cpu } from '@element-plus/icons-vue'
 import MarkdownIt from 'markdown-it'
-import { tutorApi, uploadApi, extractContent, extractMood } from '@/api'
+import { tutorApi, uploadApi, historyApi, speechApi, extractContent, extractMood } from '@/api'
 
 const md = new MarkdownIt()
 
@@ -173,7 +194,12 @@ const quickTopics = ref([
   'Spring Boot 自动配置原理',
   '如何理解 MVC 模式？',
   'RESTful API 设计规范',
-  '数据库索引的优缺点'
+  '数据库索引的优缺点',
+  '解释一下闭包的概念和应用',
+  'Vue 3 的 Composition API 有什么优势？',
+  '如何优化前端性能？',
+  '什么是微服务架构？',
+  'Git 的 rebase 和 merge 有什么区别？'
 ])
 
 const messages = ref([])
@@ -184,6 +210,10 @@ const messageListRef = ref(null)
 const currentMood = ref(null)
 const fileInputRef = ref(null)
 const uploadedImage = ref(null)
+const isRecording = ref(false)
+const isTranscribing = ref(false)
+let mediaRecorder = null
+let audioChunks = []
 
 const moodTagType = computed(() => {
   if (!currentMood.value) return 'info'
@@ -223,6 +253,65 @@ const handleImageUpload = async (event) => {
   }
   // 重置 input
   if (fileInputRef.value) fileInputRef.value.value = ''
+}
+
+// 语音录制
+const toggleRecording = async () => {
+  if (isRecording.value) {
+    stopRecording()
+  } else {
+    await startRecording()
+  }
+}
+
+const startRecording = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+    audioChunks = []
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) audioChunks.push(e.data)
+    }
+
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop())
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+      await transcribeAudio(audioBlob)
+    }
+
+    mediaRecorder.start()
+    isRecording.value = true
+    ElMessage.success('开始录音，请说话...')
+  } catch (err) {
+    console.error('录音失败:', err)
+    ElMessage.error('无法访问麦克风，请检查权限')
+  }
+}
+
+const stopRecording = () => {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop()
+  }
+  isRecording.value = false
+}
+
+const transcribeAudio = async (audioBlob) => {
+  isTranscribing.value = true
+  try {
+    const res = await speechApi.transcribe(audioBlob)
+    if (res?.success && res.data?.text) {
+      inputMessage.value += res.data.text
+      ElMessage.success('语音识别成功')
+    } else {
+      ElMessage.warning('未识别到内容，请重试')
+    }
+  } catch (err) {
+    console.error('语音转文字失败:', err)
+    ElMessage.error('语音识别失败，请重试')
+  } finally {
+    isTranscribing.value = false
+  }
 }
 
 // 加载历史对话
@@ -271,7 +360,7 @@ const clearChat = async () => {
   }
 }
 
-// 发送消息（非流式）
+// 发送消息（流式）
 const sendMessage = async () => {
   if (!inputMessage.value.trim()) {
     ElMessage.warning('请输入内容')
@@ -301,28 +390,32 @@ const sendMessage = async () => {
     type: 'ai',
     content: '',
     time: getCurrentTime(),
-    streaming: true
+    streaming: true,
+    thinking: ''
   })
 
   try {
     const token = localStorage.getItem('token')
-    let aiContent = ''
     let apiResult = null
 
     if (token && !token.startsWith('mock-token-')) {
-      // 真实 API 模式：调用后端 agent 接口
-      apiResult = await tutorApi.teach({
+      // 真实 API 模式：使用流式接口
+      await tutorApi.teachStream({
         topic: userContent,
         level: currentLevel.value
+      }, (chunk, done, metadata) => {
+        messages.value[aiMessageIndex].content = chunk
+        messages.value[aiMessageIndex].streaming = !done
+        
+        if (metadata?.thought) {
+          messages.value[aiMessageIndex].thinking = metadata.thought
+        }
+        
+        scrollToBottom()
       })
-      // 响应结构: { success, data: { success, intent, result, ... } }
-      const data = apiResult.data || apiResult
-      aiContent = data.result || data.content || extractContent(data)
-    }
-
-    if (!aiContent) {
-      // 降级：模拟回复
-      aiContent = `好的，让我来为你讲解这个知识点！
+    } else {
+      // 降级：模拟流式回复
+      const aiContent = `好的，让我来为你讲解这个知识点！
 
 ## 📚 ${userContent}
 
@@ -344,21 +437,32 @@ function example() {
 \`\`\`
 
 希望这个讲解对你有帮助！如果需要更深入的解释，请随时提问。`
+
+      let currentContent = ''
+      const chunkSize = Math.min(15, aiContent.length)
+      for (let i = 0; i < aiContent.length; i += chunkSize) {
+        currentContent += aiContent.slice(i, i + chunkSize)
+        messages.value[aiMessageIndex].content = currentContent
+        await scrollToBottom()
+        await new Promise(resolve => setTimeout(resolve, 20))
+      }
+      messages.value[aiMessageIndex].streaming = false
     }
 
-    // 模拟打字效果显示
-    let currentContent = ''
-    const chunkSize = Math.min(15, aiContent.length)
-    for (let i = 0; i < aiContent.length; i += chunkSize) {
-      currentContent += aiContent.slice(i, i + chunkSize)
-      messages.value[aiMessageIndex].content = currentContent
-      await scrollToBottom()
-      await new Promise(resolve => setTimeout(resolve, 20))
-    }
-    messages.value[aiMessageIndex].streaming = false
+    const finalContent = messages.value[aiMessageIndex].content
 
     // 保存 AI 回复
-    await saveMessage('ai', aiContent)
+    await saveMessage('ai', finalContent)
+
+    // 自动保存到历史记录
+    try {
+      await historyApi.saveConversation('tutor', userContent, [
+        { role: 'user', content: userContent },
+        { role: 'assistant', content: finalContent }
+      ])
+    } catch (e) {
+      console.warn('保存教学历史失败:', e)
+    }
 
     // 提取情绪
     if (apiResult?.data?.mood) {
@@ -649,6 +753,33 @@ onBeforeUnmount(() => {
   background: transparent;
   color: inherit;
   padding: 0;
+}
+
+/* 思考过程 */
+.message-thinking {
+  margin-bottom: 12px;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(255, 243, 205, 0.6) 0%, rgba(255, 248, 225, 0.6) 100%);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  animation: fadeIn 0.5s ease;
+}
+
+.message-thinking .thinking-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #f59e0b;
+  margin-bottom: 6px;
+}
+
+.message-thinking .thinking-text {
+  font-size: 12px;
+  color: #78716c;
+  line-height: 1.5;
+  padding-left: 20px;
 }
 
 /* 消息时间 */

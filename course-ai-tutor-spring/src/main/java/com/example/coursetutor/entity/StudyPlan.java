@@ -28,6 +28,14 @@ public class StudyPlan {
     @Column(columnDefinition = "TEXT")
     private String resources;
 
+    // AI 生成的完整规划内容（Markdown）
+    @Column(name = "plan_content", columnDefinition = "LONGTEXT")
+    private String planContent;
+
+    // 规划时的输入参数（JSON）
+    @Column(name = "input_params", columnDefinition = "TEXT")
+    private String inputParams;
+
     @Column(nullable = false)
     @Builder.Default
     private Double progress = 0.0;

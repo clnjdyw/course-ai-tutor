@@ -13,11 +13,14 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3001,
+    port: 5173,
+    strictPort: false, // 允许端口被占用时自动切换
+    open: true, // 自动打开浏览器
     proxy: {
       '/api': {
         target: 'http://localhost:8081',
-        changeOrigin: true
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api')
       }
     }
   }

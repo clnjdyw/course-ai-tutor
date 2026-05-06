@@ -64,6 +64,12 @@ const routes = [
         meta: { title: 'PK 对战', requiresAuth: true }
       },
       {
+        path: 'exercise-templates',
+        name: 'ExerciseTemplates',
+        component: () => import('@/views/ExerciseTemplates.vue'),
+        meta: { title: '自定义题库', requiresAuth: true }
+      },
+      {
         path: 'settings',
         name: 'Settings',
         component: () => import('@/views/Settings.vue'),
@@ -82,6 +88,18 @@ const routes = [
         meta: { title: '错题本', requiresAuth: true }
       },
       {
+        path: 'history',
+        name: 'History',
+        component: () => import('@/views/HistoryView.vue'),
+        meta: { title: '历史记录', requiresAuth: true }
+      },
+      {
+        path: 'feedback',
+        name: 'FeedbackHistory',
+        component: () => import('@/views/FeedbackHistory.vue'),
+        meta: { title: '反馈历史', requiresAuth: true }
+      },
+      {
         path: 'progress',
         name: 'Progress',
         component: () => import('@/views/ProgressView.vue'),
@@ -92,6 +110,84 @@ const routes = [
         name: 'Reminders',
         component: () => import('@/views/RemindersView.vue'),
         meta: { title: '学习提醒', requiresAuth: true }
+      },
+      {
+        path: 'knowledge-graph',
+        name: 'KnowledgeGraph',
+        component: () => import('@/views/KnowledgeGraph.vue'),
+        meta: { title: '知识图谱', requiresAuth: true }
+      },
+      {
+        path: 'knowledge-bases',
+        name: 'KnowledgeBases',
+        component: () => import('@/views/KnowledgeBases.vue'),
+        meta: { title: '知识库管理', requiresAuth: true }
+      },
+      {
+        path: 'knowledge-manage',
+        name: 'KnowledgeManage',
+        component: () => import('@/views/KnowledgeManage.vue'),
+        meta: { title: '知识点管理', requiresAuth: true }
+      },
+      {
+        path: 'knowledge-import',
+        name: 'KnowledgeImport',
+        component: () => import('@/views/KnowledgeImport.vue'),
+        meta: { title: '知识导入', requiresAuth: true }
+      },
+      {
+        path: 'knowledge-recommendation',
+        name: 'KnowledgeRecommendation',
+        component: () => import('@/views/KnowledgeRecommendation.vue'),
+        meta: { title: '智能推荐', requiresAuth: true }
+      },
+      {
+        path: 'learning-paths',
+        name: 'LearningPaths',
+        component: () => import('@/views/LearningPaths.vue'),
+        meta: { title: '学习路径', requiresAuth: true }
+      },
+      {
+        path: 'analytics',
+        name: 'Analytics',
+        component: () => import('@/views/Analytics.vue'),
+        meta: { title: '数据分析', requiresAuth: true }
+      },
+      {
+        path: 'notifications',
+        name: 'Notifications',
+        component: () => import('@/views/Notifications.vue'),
+        meta: { title: '通知中心', requiresAuth: true }
+      },
+      {
+        path: 'community',
+        name: 'Community',
+        component: () => import('@/views/Community.vue'),
+        meta: { title: '学习社区', requiresAuth: true }
+      },
+      {
+        path: 'export',
+        name: 'Export',
+        component: () => import('@/views/Export.vue'),
+        meta: { title: '数据导出', requiresAuth: true }
+      },
+      {
+        path: 'study',
+        name: 'StudySession',
+        component: () => import('@/views/StudySession.vue'),
+        meta: { title: '学习会话', requiresAuth: true }
+      },
+      {
+        path: 'reviews',
+        name: 'Reviews',
+        component: () => import('@/views/Reviews.vue'),
+        meta: { title: '复习计划', requiresAuth: true }
+      },
+      {
+        path: 'companion',
+        name: 'Companion',
+        component: () => import('@/views/CompanionView.vue'),
+        meta: { title: '学习伙伴', requiresAuth: true }
       },
       {
         path: 'admin',
@@ -148,6 +244,10 @@ const router = createRouter({
 })
 
 // 路由守卫 - 后端验证增强版
+// token 验证缓存，避免每次导航都请求后端
+let lastVerifiedToken = null
+let lastVerifiedRole = null
+
 router.beforeEach(async (to, from, next) => {
   // 设置页面标题
   if (to.meta.title) {
@@ -171,8 +271,6 @@ router.beforeEach(async (to, from, next) => {
 
     // 如果是模拟token（后端未运行时），直接放行
     if (token.startsWith('mock-token-')) {
-      console.log('✅ 模拟模式：使用本地存储的用户信息')
-      
       const userId = localStorage.getItem('userId')
       const userRole = localStorage.getItem('userRole') || 'student'
       const isAdmin = userRole === 'admin'
@@ -184,11 +282,16 @@ router.beforeEach(async (to, from, next) => {
         return
       }
 
-      // 检查特定角色权限
-      if (to.meta.requiresRole && userRole !== to.meta.requiresRole) {
-        console.warn(`⚠️ 需要 ${to.meta.requiresRole} 角色`)
-        next('/planner')
-        return
+      // 检查特定角色权限（admin 拥有 teacher 的访问权）
+      if (to.meta.requiresRole) {
+        const allowed = to.meta.requiresRole === 'teacher'
+          ? ['teacher', 'admin']
+          : [to.meta.requiresRole]
+        if (!allowed.includes(userRole)) {
+          console.warn(`⚠️ 需要 ${to.meta.requiresRole} 角色`)
+          next('/planner')
+          return
+        }
       }
 
       // 验证通过，允许访问
@@ -196,9 +299,33 @@ router.beforeEach(async (to, from, next) => {
       return
     }
 
+    // 检查后端验证缓存：如果 token 没变，直接使用已验证的角色
+    const cachedRole = localStorage.getItem('userRole')
+    if (token === lastVerifiedToken && lastVerifiedRole) {
+      // token 已验证过，直接放行
+      const isAdmin = lastVerifiedRole === 'admin'
+      if (to.meta.requiresAdmin && !isAdmin) {
+        console.warn('⚠️ 需要管理员权限')
+        next('/planner')
+        return
+      }
+      if (to.meta.requiresRole) {
+        const allowed = to.meta.requiresRole === 'teacher'
+          ? ['teacher', 'admin']
+          : [to.meta.requiresRole]
+        if (!allowed.includes(lastVerifiedRole)) {
+          console.warn(`⚠️ 需要 ${to.meta.requiresRole} 角色`)
+          next('/planner')
+          return
+        }
+      }
+      next()
+      return
+    }
+
     try {
       // 从后端验证 token 并获取用户信息
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082/api'
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api'
       const { data } = await axios.get(`${API_BASE_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 5000
@@ -211,12 +338,14 @@ router.beforeEach(async (to, from, next) => {
         throw new Error('无法获取用户信息')
       }
 
-      // 保存用户信息到 localStorage（供其他组件使用）
-      localStorage.setItem('userId', String(userData.id))
-      localStorage.setItem('userRole', userData.role || 'student')
-      localStorage.setItem('isLoggedIn', 'true')
-
+      // 保存用户信息到 localStorage 并缓存 token
       const userRole = userData.role || 'student'
+      localStorage.setItem('userId', String(userData.id))
+      localStorage.setItem('userRole', userRole)
+      localStorage.setItem('isLoggedIn', 'true')
+      lastVerifiedToken = token
+      lastVerifiedRole = userRole
+
       const isAdmin = userRole === 'admin'
 
       // 检查管理员权限
@@ -226,24 +355,54 @@ router.beforeEach(async (to, from, next) => {
         return
       }
 
-      // 检查特定角色权限
-      if (to.meta.requiresRole && userRole !== to.meta.requiresRole) {
-        console.warn(`⚠️ 需要 ${to.meta.requiresRole} 角色`)
-        next('/planner')
-        return
+      // 检查特定角色权限（admin 拥有 teacher 的访问权）
+      if (to.meta.requiresRole) {
+        const allowed = to.meta.requiresRole === 'teacher'
+          ? ['teacher', 'admin']
+          : [to.meta.requiresRole]
+        if (!allowed.includes(userRole)) {
+          console.warn(`⚠️ 需要 ${to.meta.requiresRole} 角色`)
+          next('/planner')
+          return
+        }
       }
 
       // 验证通过，允许访问
       next()
     } catch (error) {
-      // Token 无效或过期，清除并跳转到登录页
-      console.error('❌ Token 验证失败:', error.message)
-      localStorage.removeItem('token')
-      localStorage.removeItem('isLoggedIn')
-      localStorage.removeItem('userId')
-      localStorage.removeItem('userRole')
-      localStorage.removeItem('isAdmin')
-      next('/login')
+      // 只有 401 才清除登录状态，其他错误（网络超时、500等）保留登录状态
+      const status = error.response?.status
+      if (status === 401) {
+        console.warn('⚠️ Token 无效或已过期，清除登录状态')
+        localStorage.removeItem('token')
+        localStorage.removeItem('isLoggedIn')
+        localStorage.removeItem('userId')
+        localStorage.removeItem('userRole')
+        localStorage.removeItem('isAdmin')
+        next('/login')
+      } else {
+        // 网络错误或服务端错误：保留登录状态，允许访问
+        console.warn(`⚠️ 验证请求异常 (${error.message})，保留当前登录状态`)
+        // 如果有缓存的角色，按缓存放行；否则按 localStorage 中的角色放行
+        const fallbackRole = lastVerifiedRole || localStorage.getItem('userRole') || 'student'
+        const isAdmin = fallbackRole === 'admin'
+        if (to.meta.requiresAdmin && !isAdmin) {
+          console.warn('⚠️ 需要管理员权限，降级跳转')
+          next('/planner')
+          return
+        }
+        if (to.meta.requiresRole) {
+          const allowed = to.meta.requiresRole === 'teacher'
+            ? ['teacher', 'admin']
+            : [to.meta.requiresRole]
+          if (!allowed.includes(fallbackRole)) {
+            console.warn(`⚠️ 需要 ${to.meta.requiresRole} 角色，降级跳转`)
+            next('/planner')
+            return
+          }
+        }
+        next()
+      }
       return
     }
   }

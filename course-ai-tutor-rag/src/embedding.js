@@ -50,7 +50,7 @@ function hashText(text) {
 }
 
 /**
- * 获取文本的向量嵌入（带缓存）
+ * 获取文本的向量嵌入(带缓存)
  */
 export async function getEmbedding(text) {
   // 生成缓存键
@@ -64,16 +64,17 @@ export async function getEmbedding(text) {
   }
   
   try {
-    const response = await fetch('https://api.siliconflow.cn/v1/embeddings', {
+    const response = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        'Authorization': `Bearer ${process.env.DASHSCOPE_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'BAAI/bge-large-zh-v1.5',
+        model: process.env.EMBEDDING_MODEL || 'text-embedding-v3',
         input: text,
-        encoding_format: 'float'
+        encoding_format: 'float',
+        dimensions: 1024
       })
     })
     
