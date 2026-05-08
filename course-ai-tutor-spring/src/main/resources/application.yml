@@ -11,9 +11,9 @@ spring:
 
   # MySQL Database
   datasource:
-    url: jdbc:mysql://localhost:3307/course_ai_tutor?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/course_ai_tutor?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:rootpassword}
+    password: ${DB_PASSWORD:123456}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -62,8 +62,8 @@ spring:
 # Spring AI (DashScope OpenAI-compatible)
 spring.ai:
   openai:
-    api-key: ${DASHSCOPE_API_KEY:placeholder-key-for-development}
-    base-url: ${DASHSCOPE_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+    api-key: ${DASHSCOPE_API_KEY:sk-8da7d7287c5041fa826519e06e420657}
+    base-url: ${DASHSCOPE_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}
     chat:
       options:
         model: ${AI_MODEL:qwen-plus}
@@ -78,7 +78,7 @@ app:
     refresh-expiration-ms: ${JWT_REFRESH_EXPIRES_IN_MS:604800000} # 7 days
 
   cors:
-    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3001,http://localhost:80}
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:3001,http://localhost:80}
 
   upload:
     dir: ${UPLOAD_DIR:./data/uploads}
@@ -97,6 +97,15 @@ app:
     - oss-cn-shanghai.aliyuncs.com
     - oss-cn-beijing.aliyuncs.com
     - oss-cn-shenzhen.aliyuncs.com
+
+# Actuator
+management:
+  health:
+    mail:
+      enabled: false
+
+# Spring Boot Admin / IDEA JMX
+spring.jmx.enabled: true
 
 # Logging
 logging:

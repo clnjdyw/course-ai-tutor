@@ -67,7 +67,7 @@
               <el-form-item>
                 <div class="login-options">
                   <el-checkbox v-model="loginForm.remember">记住我</el-checkbox>
-                  <el-link type="primary" :underline="false">忘记密码？</el-link>
+                  <el-link type="primary" underline="never">忘记密码？</el-link>
                 </div>
               </el-form-item>
 
@@ -88,7 +88,7 @@
               <!-- 管理员入口 -->
               <div class="admin-entry">
                 <el-link 
-                  :underline="false" 
+                  underline="never" 
                   class="admin-link"
                   @click="showAdminRole"
                 >
@@ -278,16 +278,18 @@ const registerRules = {
     { min: 6, message: '密码长度不能少于 6 位', trigger: 'blur' }
   ],
   confirmPassword: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
+    { required: true, message: '请确认密码', trigger: 'change' },
     {
-      validator: (rule, value, callback) => {
-        if (value !== registerForm.password) {
+      validator: (_rule, value, callback) => {
+        if (value === '') {
+          callback()
+        } else if (value !== registerForm.password) {
           callback(new Error('两次输入的密码不一致'))
         } else {
           callback()
         }
       },
-      trigger: 'blur'
+      trigger: 'change'
     }
   ]
 }

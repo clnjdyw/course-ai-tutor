@@ -410,7 +410,7 @@ const sendMessage = async () => {
         if (metadata?.thought) {
           messages.value[aiMessageIndex].thinking = metadata.thought
         }
-        
+
         scrollToBottom()
       })
     } else {

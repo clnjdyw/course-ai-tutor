@@ -45,6 +45,7 @@ async function streamRequest(endpoint, data, onChunk, timeoutMs = 5 * 60 * 1000)
   const decoder = new TextDecoder()
   let buffer = ''
   let fullContent = ''
+  let currentEventType = ''
 
   while (true) {
     const { done, value } = await reader.read()
@@ -57,27 +58,33 @@ async function streamRequest(endpoint, data, onChunk, timeoutMs = 5 * 60 * 1000)
     buffer = lines.pop() || ''
 
     for (const line of lines) {
-      if (line.startsWith('event: ')) {
-        const eventType = line.slice(7)
+      if (line.startsWith('event:')) {
+        currentEventType = line.slice(6).trim()
         continue
       }
-      if (line.startsWith('data: ')) {
+      if (line.startsWith('data:')) {
         try {
-          const parsed = JSON.parse(line.slice(6))
+          const parsed = JSON.parse(line.slice(5).trim())
           if (parsed.content !== undefined) {
             fullContent = parsed.content
             onChunk(parsed.content, false, parsed)
           }
-          if (parsed.done !== undefined || eventType === 'done') {
+          if (parsed.done === true || currentEventType === 'done') {
             onChunk(fullContent, true, parsed)
           }
         } catch (e) {
-          // skip
+          // skip non-JSON lines
         }
+        currentEventType = ''
       }
     }
   }
-  
+
+  // 兜底：流结束但未收到 done 事件时，确保 done 回调被触发
+  if (fullContent) {
+    onChunk(fullContent, true, {})
+  }
+
   return fullContent
 }
 

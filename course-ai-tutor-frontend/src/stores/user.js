@@ -38,40 +38,14 @@ export const useUserStore = defineStore('user', {
       try {
         const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api'
 
-        let loginData
-        try {
-          // 尝试调用真实后端登录
-          const { data } = await axios.post(`${API_BASE_URL}/auth/login`, credentials)
-          loginData = data
-        } catch (err) {
-          // 后端不可用时，回退到 mock 模式
-          console.warn('后端登录失败，使用模拟模式:', err.message)
-          let userRole = 'student'
-          if (credentials.username === 'admin') userRole = 'admin'
-          else if (credentials.username.includes('teacher')) userRole = 'teacher'
+        // 调用真实后端登录
+        const { data } = await axios.post(`${API_BASE_URL}/auth/login`, credentials)
 
-          loginData = {
-            success: true,
-            data: {
-              token: `mock-token-${userRole === 'admin' ? 1 : (userRole === 'teacher' ? 2 : 3)}-${userRole}`,
-              user: {
-                id: userRole === 'admin' ? 1 : (userRole === 'teacher' ? 2 : 3),
-                username: credentials.username,
-                email: credentials.username + '@example.com',
-                role: userRole,
-                level: 1,
-                experience: 0
-              }
-            },
-            message: '登录成功'
-          }
+        if (!data?.success) {
+          throw new Error(data?.message || '登录失败')
         }
 
-        if (!loginData?.success) {
-          throw new Error(loginData?.message || '登录失败')
-        }
-
-        const { token, user } = loginData.data
+        const { token, user } = data
         this.token = token
         this.user = user
         this.userId = String(user.id)
@@ -83,19 +57,16 @@ export const useUserStore = defineStore('user', {
         localStorage.setItem('userRole', this.role)
         localStorage.setItem('isLoggedIn', 'true')
 
-        // 登录后立即获取完整用户信息（含 level、experience）
-        // 跳过 mock token，因为后端 production 模式不支持 mock token
+        // 登录后立即获取完整用户信息
         const isMockToken = token.startsWith('mock-token-')
         if (!isMockToken) {
           this.fetchCurrentUser().catch(() => {
             console.warn('⚠️ 获取用户信息失败，但登录仍然有效')
           })
-        } else {
-          console.log('ℹ️ Mock token 模式：跳过 fetchCurrentUser')
         }
 
         console.log('✅ 登录成功:', this.username)
-        return loginData
+        return data
       } catch (error) {
         console.error('❌ 登录失败:', error)
         throw error
@@ -107,19 +78,21 @@ export const useUserStore = defineStore('user', {
      */
     async register(userData) {
       try {
-        // 模拟注册成功响应
-        console.log('模拟注册请求:', userData)
-        
-        // 模拟数据
-        const mockResponse = {
-          success: true,
-          message: '注册成功'
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api'
+
+        // 只传后端需要的字段，去掉 confirmPassword 等前端字段
+        const { data } = await axios.post(`${API_BASE_URL}/auth/register`, {
+          username: userData.username,
+          email: userData.email,
+          password: userData.password
+        })
+
+        if (!data?.success) {
+          throw new Error(data?.message || '注册失败')
         }
-        
-        console.log('模拟注册响应:', mockResponse)
-        
+
         console.log('✅ 注册成功')
-        return mockResponse
+        return data
       } catch (error) {
         console.error('❌ 注册失败:', error)
         throw error
@@ -142,17 +115,17 @@ export const useUserStore = defineStore('user', {
         })
 
         if (data.success) {
-          this.user = { ...this.user, ...data.data.user }
-          this.userId = String(data.data.user.id)
-          this.role = data.data.user.role
+          this.user = { ...this.user, ...data.user }
+          this.userId = String(data.user.id)
+          this.role = data.user.role
           this.isLoggedIn = true
-          
+
           localStorage.setItem('userId', this.userId)
           localStorage.setItem('userRole', this.role)
           localStorage.setItem('isLoggedIn', 'true')
-          
+
           console.log('✅ 获取用户信息成功')
-          return data.data.user
+          return data.user
         }
       } catch (error) {
         console.error('❌ 获取用户信息失败:', error.message)
@@ -199,9 +172,9 @@ export const useUserStore = defineStore('user', {
         })
 
         if (data.success) {
-          this.user = { ...this.user, ...data.data.user }
+          this.user = { ...this.user, ...data.user }
           console.log('✅ 用户信息同步成功')
-          return data.data.user
+          return data.user
         }
       } catch (error) {
         console.error('❌ 同步用户信息失败:', error)
