@@ -1,0 +1,194 @@
+[
+  {
+    "module": "用户中心",
+    "testCase": "TC01 - 用户注册(学生)",
+    "status": "失败",
+    "details": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"邮箱\"], input[name=\"email\"]')\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"text\" tabindex=\"0\" autocomplete=\"off\" id=\"el-id-2750-16\" placeholder=\"请输入邮箱\" class=\"el-input__inner\"/>\u001b[22m\n\u001b[2m    - fill(\"test-student@example.com\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    60 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module1-tc01-register-student-error.png",
+    "timestamp": "2026-04-27T10:24:03.028Z"
+  },
+  {
+    "module": "用户中心",
+    "testCase": "TC02 - 用户登录",
+    "status": "失败",
+    "details": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"邮箱\"], input[name=\"email\"]')\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"text\" tabindex=\"0\" autocomplete=\"off\" id=\"el-id-9770-16\" placeholder=\"请输入邮箱\" class=\"el-input__inner\"/>\u001b[22m\n\u001b[2m    - fill(\"test-student@example.com\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    60 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module1-tc02-login-error.png",
+    "timestamp": "2026-04-27T10:24:34.716Z"
+  },
+  {
+    "module": "用户中心",
+    "testCase": "TC03 - 个人信息管理",
+    "status": "失败",
+    "details": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"邮箱\"], input[name=\"email\"]')\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"text\" tabindex=\"0\" id=\"el-id-686-16\" autocomplete=\"off\" placeholder=\"请输入邮箱\" class=\"el-input__inner\"/>\u001b[22m\n\u001b[2m    - fill(\"test-student@example.com\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    59 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module1-tc03-profile-error.png",
+    "timestamp": "2026-04-27T10:25:05.875Z"
+  },
+  {
+    "module": "用户中心",
+    "testCase": "TC04 - 学习目标与学科偏好设置",
+    "status": "部分通过",
+    "details": "设置页面访问正常",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module1-tc04-settings.png",
+    "timestamp": "2026-04-27T10:25:07.597Z"
+  },
+  {
+    "module": "用户中心",
+    "testCase": "TC05 - 角色权限区分(教师)",
+    "status": "失败",
+    "details": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"邮箱\"], input[name=\"email\"]')\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"text\" tabindex=\"0\" id=\"el-id-419-16\" autocomplete=\"off\" placeholder=\"请输入邮箱\" class=\"el-input__inner\"/>\u001b[22m\n\u001b[2m    - fill(\"test-teacher@example.com\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    59 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module1-tc05-teacher-error.png",
+    "timestamp": "2026-04-27T10:25:38.853Z"
+  },
+  {
+    "module": "智能问答",
+    "testCase": "TC06 - 文字交互(知识点讲解)",
+    "status": "失败",
+    "details": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"邮箱\"], input[name=\"email\"]')\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"text\" tabindex=\"0\" id=\"el-id-884-16\" autocomplete=\"off\" placeholder=\"请输入邮箱\" class=\"el-input__inner\"/>\u001b[22m\n\u001b[2m    - fill(\"test-student@example.com\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    59 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module2-tc06-qna-error.png",
+    "timestamp": "2026-04-27T10:26:10.044Z"
+  },
+  {
+    "module": "智能问答",
+    "testCase": "TC07 - 图片交互(上传)",
+    "status": "部分通过",
+    "details": "图片上传功能未找到",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module2-tc07-image-upload.png",
+    "timestamp": "2026-04-27T10:26:11.810Z"
+  },
+  {
+    "module": "智能问答",
+    "testCase": "TC08 - 语音交互",
+    "status": "部分通过",
+    "details": "语音功能未找到",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module2-tc08-voice.png",
+    "timestamp": "2026-04-27T10:26:13.604Z"
+  },
+  {
+    "module": "智能问答",
+    "testCase": "TC09 - 心理辅导交互",
+    "status": "失败",
+    "details": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"发送\"), button:has-text(\"提交\")').first()\u001b[22m\n",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module2-tc09-counseling-error.png",
+    "timestamp": "2026-04-27T10:26:45.395Z"
+  },
+  {
+    "module": "智能问答",
+    "testCase": "TC10 - 习题模拟交互",
+    "status": "部分通过",
+    "details": "习题功能未找到",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module2-tc10-exercise.png",
+    "timestamp": "2026-04-27T10:26:47.068Z"
+  },
+  {
+    "module": "知识点管理",
+    "testCase": "TC11 - 知识库访问",
+    "status": "失败",
+    "details": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"邮箱\"], input[name=\"email\"]')\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"text\" tabindex=\"0\" autocomplete=\"off\" id=\"el-id-3980-16\" placeholder=\"请输入邮箱\" class=\"el-input__inner\"/>\u001b[22m\n\u001b[2m    - fill(\"test-student@example.com\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    59 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module3-tc11-knowledge-error.png",
+    "timestamp": "2026-04-27T10:27:18.324Z"
+  },
+  {
+    "module": "知识点管理",
+    "testCase": "TC12 - 知识点结构化展示",
+    "status": "部分通过",
+    "details": "知识点结构未找到",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module3-tc12-structure.png",
+    "timestamp": "2026-04-27T10:27:20.057Z"
+  },
+  {
+    "module": "知识点管理",
+    "testCase": "TC13 - 教师端知识库管理",
+    "status": "通过",
+    "details": "教师端知识库管理正常访问",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module3-tc13-teacher-knowledge.png",
+    "timestamp": "2026-04-27T10:27:21.832Z"
+  },
+  {
+    "module": "知识点管理",
+    "testCase": "TC14 - 知识库搜索功能",
+    "status": "通过",
+    "details": "知识库搜索功能正常",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module3-tc14-search.png",
+    "timestamp": "2026-04-27T10:27:23.544Z"
+  },
+  {
+    "module": "个性化学习",
+    "testCase": "TC15 - 学习规划生成",
+    "status": "失败",
+    "details": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"邮箱\"], input[name=\"email\"]')\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"text\" tabindex=\"0\" autocomplete=\"off\" id=\"el-id-1788-16\" placeholder=\"请输入邮箱\" class=\"el-input__inner\"/>\u001b[22m\n\u001b[2m    - fill(\"test-student@example.com\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    59 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module4-tc15-planner-error.png",
+    "timestamp": "2026-04-27T10:27:54.747Z"
+  },
+  {
+    "module": "个性化学习",
+    "testCase": "TC16 - 学习进度跟踪",
+    "status": "部分通过",
+    "details": "进度展示未找到",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module4-tc16-progress.png",
+    "timestamp": "2026-04-27T10:27:56.468Z"
+  },
+  {
+    "module": "个性化学习",
+    "testCase": "TC17 - 自定义题库练习",
+    "status": "通过",
+    "details": "题库练习功能正常",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module4-tc17-exercise.png",
+    "timestamp": "2026-04-27T10:27:58.261Z"
+  },
+  {
+    "module": "个性化学习",
+    "testCase": "TC18 - 学习成果统计",
+    "status": "部分通过",
+    "details": "统计图表未找到",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module4-tc18-statistics.png",
+    "timestamp": "2026-04-27T10:27:59.998Z"
+  },
+  {
+    "module": "辅助功能",
+    "testCase": "TC19 - 笔记功能",
+    "status": "失败",
+    "details": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"邮箱\"], input[name=\"email\"]')\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"text\" tabindex=\"0\" autocomplete=\"off\" id=\"el-id-1625-16\" placeholder=\"请输入邮箱\" class=\"el-input__inner\"/>\u001b[22m\n\u001b[2m    - fill(\"test-student@example.com\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    59 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module5-tc19-notes-error.png",
+    "timestamp": "2026-04-27T10:28:31.278Z"
+  },
+  {
+    "module": "辅助功能",
+    "testCase": "TC20 - 错题收集功能",
+    "status": "部分通过",
+    "details": "错题本未找到",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module5-tc20-wrong-questions.png",
+    "timestamp": "2026-04-27T10:28:32.990Z"
+  },
+  {
+    "module": "辅助功能",
+    "testCase": "TC21 - 学习数据统计分析",
+    "status": "通过",
+    "details": "数据统计分析页面正常",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module5-tc21-analytics.png",
+    "timestamp": "2026-04-27T10:28:34.758Z"
+  },
+  {
+    "module": "辅助功能",
+    "testCase": "TC22 - 学习提醒功能",
+    "status": "部分通过",
+    "details": "提醒功能未找到",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module5-tc22-reminders.png",
+    "timestamp": "2026-04-27T10:28:36.556Z"
+  },
+  {
+    "module": "辅助功能",
+    "testCase": "TC23 - 历史记录查询",
+    "status": "通过",
+    "details": "历史记录功能正常",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module5-tc23-history.png",
+    "timestamp": "2026-04-27T10:28:38.333Z"
+  },
+  {
+    "module": "辅助功能",
+    "testCase": "TC24 - 成就系统",
+    "status": "部分通过",
+    "details": "成就系统未找到",
+    "screenshot": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\test-screenshots\\module5-tc24-achievements.png",
+    "timestamp": "2026-04-27T10:28:40.116Z"
+  }
+]

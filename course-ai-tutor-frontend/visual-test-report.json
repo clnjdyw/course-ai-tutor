@@ -1,0 +1,811 @@
+﻿{
+  "config": {
+    "configFile": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\playwright.config.cjs",
+    "rootDir": "E:/download/course-ai-tutor-main/course-ai-tutor-frontend/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "E:/download/course-ai-tutor-main/course-ai-tutor-frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "E:/download/course-ai-tutor-main/course-ai-tutor-frontend/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "*.cjs"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "visual-test-full.cjs",
+      "file": "visual-test-full.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "AI Tutor 瀹屾暣鍙鍖栨祴璇曟姤鍛?,
+          "file": "visual-test-full.cjs",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC01 - 鐧诲綍椤甸潰鍙鍖栨祴璇?,
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7485,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\nExpected substring: \u001b[32m\"鐧诲綍\"\u001b[39m\nReceived string:    \u001b[31m\"璇剧▼杈呭 AI\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    9 脳 locator resolved to <h1 class=\"app-title\" data-v-67e64f9f=\"\">璇剧▼杈呭 AI</h1>\u001b[22m\n\u001b[2m      - unexpected value \"璇剧▼杈呭 AI\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\nExpected substring: \u001b[32m\"鐧诲綍\"\u001b[39m\nReceived string:    \u001b[31m\"璇剧▼杈呭 AI\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    9 脳 locator resolved to <h1 class=\"app-title\" data-v-67e64f9f=\"\">璇剧▼杈呭 AI</h1>\u001b[22m\n\u001b[2m      - unexpected value \"璇剧▼杈呭 AI\"\u001b[22m\n\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:23:38",
+                        "location": {
+                          "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                          "column": 38,
+                          "line": 23
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({ \n \u001b[90m 22 |\u001b[39m       path\u001b[33m:\u001b[39m path\u001b[33m.\u001b[39mjoin(screenshotsDir\u001b[33m,\u001b[39m \u001b[32m'01-login-page.png'\u001b[39m)\u001b[33m,\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m       fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m \n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     \n \u001b[90m 26 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'TC01: 妤犲矁鐦夐惂璇茬秿鐞涖劌宕?..'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                            "column": 38,
+                            "line": 23
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\nExpected substring: \u001b[32m\"鐧诲綍\"\u001b[39m\nReceived string:    \u001b[31m\"璇剧▼杈呭 AI\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    9 脳 locator resolved to <h1 class=\"app-title\" data-v-67e64f9f=\"\">璇剧▼杈呭 AI</h1>\u001b[22m\n\u001b[2m      - unexpected value \"璇剧▼杈呭 AI\"\u001b[22m\n\n\n  21 |     await page.screenshot({ \n  22 |       path: path.join(screenshotsDir, '01-login-page.png'),\n> 23 |       fullPage: true \n     |                                      ^\n  24 |     });\n  25 |     \n  26 |     console.log('TC01: 妤犲矁鐦夐惂璇茬秿鐞涖劌宕?..');\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:23:38"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-26T18:28:32.816Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC01---鐧诲綍椤甸潰鍙鍖栨祴璇?chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC01---鐧诲綍椤甸潰鍙鍖栨祴璇?chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC01---鐧诲綍椤甸潰鍙鍖栨祴璇?chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                        "column": 38,
+                        "line": 23
+                      }
+                    },
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7927,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\nExpected substring: \u001b[32m\"鐧诲綍\"\u001b[39m\nReceived string:    \u001b[31m\"璇剧▼杈呭 AI\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    9 脳 locator resolved to <h1 class=\"app-title\" data-v-67e64f9f=\"\">璇剧▼杈呭 AI</h1>\u001b[22m\n\u001b[2m      - unexpected value \"璇剧▼杈呭 AI\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\nExpected substring: \u001b[32m\"鐧诲綍\"\u001b[39m\nReceived string:    \u001b[31m\"璇剧▼杈呭 AI\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    9 脳 locator resolved to <h1 class=\"app-title\" data-v-67e64f9f=\"\">璇剧▼杈呭 AI</h1>\u001b[22m\n\u001b[2m      - unexpected value \"璇剧▼杈呭 AI\"\u001b[22m\n\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:23:38",
+                        "location": {
+                          "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                          "column": 38,
+                          "line": 23
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({ \n \u001b[90m 22 |\u001b[39m       path\u001b[33m:\u001b[39m path\u001b[33m.\u001b[39mjoin(screenshotsDir\u001b[33m,\u001b[39m \u001b[32m'01-login-page.png'\u001b[39m)\u001b[33m,\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m       fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m \n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     \n \u001b[90m 26 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'TC01: 妤犲矁鐦夐惂璇茬秿鐞涖劌宕?..'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                            "column": 38,
+                            "line": 23
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\nExpected substring: \u001b[32m\"鐧诲綍\"\u001b[39m\nReceived string:    \u001b[31m\"璇剧▼杈呭 AI\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    9 脳 locator resolved to <h1 class=\"app-title\" data-v-67e64f9f=\"\">璇剧▼杈呭 AI</h1>\u001b[22m\n\u001b[2m      - unexpected value \"璇剧▼杈呭 AI\"\u001b[22m\n\n\n  21 |     await page.screenshot({ \n  22 |       path: path.join(screenshotsDir, '01-login-page.png'),\n> 23 |       fullPage: true \n     |                                      ^\n  24 |     });\n  25 |     \n  26 |     console.log('TC01: 妤犲矁鐦夐惂璇茬秿鐞涖劌宕?..');\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:23:38"
+                        },
+                        {
+                          "message": "Error: apiRequestContext._wrapApiCall: file data stream has unexpected number of bytes"
+                        },
+                        {
+                          "message": "Error: End of central directory record signature not found. Either not a zip file, or file is truncated."
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-04-26T18:28:44.975Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC01---鐧诲綍椤甸潰鍙鍖栨祴璇?chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC01---鐧诲綍椤甸潰鍙鍖栨祴璇?chromium-retry1\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                        "column": 38,
+                        "line": 23
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4260684c3b460636be2c-5880a39ad63feb3f7949",
+              "file": "visual-test-full.cjs",
+              "line": 13,
+              "column": 3
+            },
+            {
+              "title": "TC02 - 瀵艰埅鍔熻兘鍙鍖栨祴璇?,
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 15589,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:74:47",
+                        "location": {
+                          "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                          "column": 47,
+                          "line": 74
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 72 |\u001b[39m       path\u001b[33m:\u001b[39m path\u001b[33m.\u001b[39mjoin(screenshotsDir\u001b[33m,\u001b[39m \u001b[32m'02-dashboard.png'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 73 |\u001b[39m       fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 74 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 75 |\u001b[39m     \n \u001b[90m 76 |\u001b[39m     \u001b[36mconst\u001b[39m navItems \u001b[33m=\u001b[39m [\n \u001b[90m 77 |\u001b[39m       { name\u001b[33m:\u001b[39m \u001b[32m'閺呴缚鍏樼粵鏃傛瀿'\u001b[39m\u001b[33m,\u001b[39m filename\u001b[33m:\u001b[39m \u001b[32m'02-nav-helper'\u001b[39m }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                            "column": 47,
+                            "line": 74
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n\n\n  72 |       path: path.join(screenshotsDir, '02-dashboard.png'),\n  73 |       fullPage: true \n> 74 |     });\n     |                  ^\n  75 |     \n  76 |     const navItems = [\n  77 |       { name: '閺呴缚鍏樼粵鏃傛瀿', filename: '02-nav-helper' },\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:74:47"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-26T18:28:57.552Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC02---瀵艰埅鍔熻兘鍙鍖栨祴璇?chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC02---瀵艰埅鍔熻兘鍙鍖栨祴璇?chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC02---瀵艰埅鍔熻兘鍙鍖栨祴璇?chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                        "column": 47,
+                        "line": 74
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 16142,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:74:47",
+                        "location": {
+                          "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                          "column": 47,
+                          "line": 74
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 72 |\u001b[39m       path\u001b[33m:\u001b[39m path\u001b[33m.\u001b[39mjoin(screenshotsDir\u001b[33m,\u001b[39m \u001b[32m'02-dashboard.png'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 73 |\u001b[39m       fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 74 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 75 |\u001b[39m     \n \u001b[90m 76 |\u001b[39m     \u001b[36mconst\u001b[39m navItems \u001b[33m=\u001b[39m [\n \u001b[90m 77 |\u001b[39m       { name\u001b[33m:\u001b[39m \u001b[32m'閺呴缚鍏樼粵鏃傛瀿'\u001b[39m\u001b[33m,\u001b[39m filename\u001b[33m:\u001b[39m \u001b[32m'02-nav-helper'\u001b[39m }\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                            "column": 47,
+                            "line": 74
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n\n\n  72 |       path: path.join(screenshotsDir, '02-dashboard.png'),\n  73 |       fullPage: true \n> 74 |     });\n     |                  ^\n  75 |     \n  76 |     const navItems = [\n  77 |       { name: '閺呴缚鍏樼粵鏃傛瀿', filename: '02-nav-helper' },\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:74:47"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-04-26T18:29:17.183Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC02---瀵艰埅鍔熻兘鍙鍖栨祴璇?chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC02---瀵艰埅鍔熻兘鍙鍖栨祴璇?chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC02---瀵艰埅鍔熻兘鍙鍖栨祴璇?chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC02---瀵艰埅鍔熻兘鍙鍖栨祴璇?chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                        "column": 47,
+                        "line": 74
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4260684c3b460636be2c-ca1dc9c1e461c378b365",
+              "file": "visual-test-full.cjs",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "TC03 - 鏅鸿兘绛旂枒鍙鍖栨祴璇?,
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 15702,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:90:42",
+                        "location": {
+                          "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                          "column": 42,
+                          "line": 90
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 88 |\u001b[39m       \n \u001b[90m 89 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({ \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 90 |\u001b[39m         path\u001b[33m:\u001b[39m path\u001b[33m.\u001b[39mjoin(screenshotsDir\u001b[33m,\u001b[39m \u001b[32m`${item.filename}.png`\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 91 |\u001b[39m         fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m \n \u001b[90m 92 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 93 |\u001b[39m     }\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                            "column": 42,
+                            "line": 90
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n\n\n  88 |       \n  89 |       await page.screenshot({ \n> 90 |         path: path.join(screenshotsDir, `${item.filename}.png`),\n     |                                          ^\n  91 |         fullPage: true \n  92 |       });\n  93 |     }\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:90:42"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-26T18:29:38.261Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC03---鏅鸿兘绛旂枒鍙鍖栨祴璇?chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC03---鏅鸿兘绛旂枒鍙鍖栨祴璇?chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC03---鏅鸿兘绛旂枒鍙鍖栨祴璇?chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                        "column": 42,
+                        "line": 90
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 15862,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:90:42",
+                        "location": {
+                          "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                          "column": 42,
+                          "line": 90
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 88 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'input[placeholder*=\"username\"]'\u001b[39m)\u001b[33m.\u001b[39mfill(\u001b[32m'testuser'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'input[placeholder*=\"password\"]'\u001b[39m)\u001b[33m.\u001b[39mfill(\u001b[32m'testpassword123'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 90 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Login'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 91 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m5000\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 92 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Helper'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 93 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m3000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                            "column": 42,
+                            "line": 90
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('鏅鸿兘绛旂枒').first()\u001b[22m\n\n\n  88 |     await page.locator('input[placeholder*=\"username\"]').fill('testuser');\n  89 |     await page.locator('input[placeholder*=\"password\"]').fill('testpassword123');\n> 90 |     await page.getByRole('button', { name: 'Login' }).click();\n     |                                          ^\n  91 |     await page.waitForTimeout(5000);\n  92 |     await page.getByText('Helper').first().click();\n  93 |     await page.waitForTimeout(3000);\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:90:42"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-04-26T18:29:58.286Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC03---鏅鸿兘绛旂枒鍙鍖栨祴璇?chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC03---鏅鸿兘绛旂枒鍙鍖栨祴璇?chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC03---鏅鸿兘绛旂枒鍙鍖栨祴璇?chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC03---鏅鸿兘绛旂枒鍙鍖栨祴璇?chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                        "column": 42,
+                        "line": 90
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4260684c3b460636be2c-bcaadf7b6e0d1dca2185",
+              "file": "visual-test-full.cjs",
+              "line": 83,
+              "column": 3
+            },
+            {
+              "title": "TC04 - 瀛︿範瑙勫垝鍙鍖栨祴璇?,
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18822,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '鐢熸垚瑙勫垝' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '鐢熸垚瑙勫垝' })\u001b[22m\n\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:142:54",
+                        "location": {
+                          "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                          "column": 54,
+                          "line": 142
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 140 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({ \n \u001b[90m 141 |\u001b[39m       path\u001b[33m:\u001b[39m path\u001b[33m.\u001b[39mjoin(screenshotsDir\u001b[33m,\u001b[39m \u001b[32m'04-planner-goal.png'\u001b[39m)\u001b[33m,\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 142 |\u001b[39m       fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m \n \u001b[90m     |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 143 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 144 |\u001b[39m     \n \u001b[90m 145 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Generate'\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                            "column": 54,
+                            "line": 142
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '鐢熸垚瑙勫垝' })\u001b[22m\n\n\n  140 |     await page.screenshot({ \n  141 |       path: path.join(screenshotsDir, '04-planner-goal.png'),\n> 142 |       fullPage: true \n      |                                          ^\n  143 |     });\n  144 |     \n  145 |     await page.getByRole('button', { name: 'Generate' }).click();\n    at E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs:142:54"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-26T18:30:19.093Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC04---瀛︿範瑙勫垝鍙鍖栨祴璇?chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC04---瀛︿範瑙勫垝鍙鍖栨祴璇?chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\test-results\\visual-test-full.cjs-AI-Tutor-瀹屾暣鍙鍖栨祴璇曟姤鍛?TC04---瀛︿範瑙勫垝鍙鍖栨祴璇?chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\download\\course-ai-tutor-main\\course-ai-tutor-frontend\\tests\\e2e\\visual-test-full.cjs",
+                        "column": 54,
+                        "line": 142
+                      }
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Test not found in the worker process. Make sure test title does not change."
+                      },
+                      "errors": [
+                        {
+                          "message": "Test not found in the worker process. Make sure test title does not change."
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-04-26T18:30:42.886Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4260684c3b460636be2c-56712e39e9bdb400af53",
+              "file": "visual-test-full.cjs",
+              "line": 118,
+              "column": 3
+            },
+            {
+              "title": "TC05 - 杈呭姪鏁欏鍙鍖栨祴璇?,
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Test not found in the worker process. Make sure test title does not change."
+                      },
+                      "errors": [
+                        {
+                          "message": "Test not found in the worker process. Make sure test title does not change."
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-26T18:30:42.886Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Test not found in the worker process. Make sure test title does not change."
+                      },
+                      "errors": [
+                        {
+                          "message": "Test not found in the worker process. Make sure test title does not change."
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-04-26T18:30:46.880Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4260684c3b460636be2c-dbaa5f0794e9b73ae573",
+              "file": "visual-test-full.cjs",
+              "line": 152,
+              "column": 3
+            },
+            {
+              "title": "TC06 - 瀛︿範璇勪及鍙鍖栨祴璇?,
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Test not found in the worker process. Make sure test title does not change."
+                      },
+                      "errors": [
+                        {
+                          "message": "Test not found in the worker process. Make sure test title does not change."
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-26T18:30:42.886Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Test not found in the worker process. Make sure test title does not change."
+                      },
+                      "errors": [
+                        {
+                          "message": "Test not found in the worker process. Make sure test title does not change."
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-04-26T18:30:46.880Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4260684c3b460636be2c-12056c98a77f16ec67df",
+              "file": "visual-test-full.cjs",
+              "line": 186,
+              "column": 3
+            },
+            {
+              "title": "TC07 - 鎯呮劅闄即鍙鍖栨祴璇?,
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Test not found in the worker process. Make sure test title does not change."
+                      },
+                      "errors": [
+                        {
+                          "message": "Test not found in the worker process. Make sure test title does not change."
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-26T18:30:42.886Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Test not found in the worker process. Make sure test title does not change."
+                      },
+                      "errors": [
+                        {
+                          "message": "Test not found in the worker process. Make sure test title does not change."
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-04-26T18:30:46.880Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4260684c3b460636be2c-bff451a763c2dbe63fa7",
+              "file": "visual-test-full.cjs",
+              "line": 213,
+              "column": 3
+            },
+            {
+              "title": "TC08 - 澶氭櫤鑳戒綋鍗忎綔娴嬭瘯",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Test not found in the worker process. Make sure test title does not change."
+                      },
+                      "errors": [
+                        {
+                          "message": "Test not found in the worker process. Make sure test title does not change."
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-26T18:30:42.886Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Test not found in the worker process. Make sure test title does not change."
+                      },
+                      "errors": [
+                        {
+                          "message": "Test not found in the worker process. Make sure test title does not change."
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-04-26T18:30:46.880Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4260684c3b460636be2c-abd9e82b7cd55066d1b0",
+              "file": "visual-test-full.cjs",
+              "line": 247,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-04-26T18:28:29.631Z",
+    "duration": 137380.679,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 8,
+    "flaky": 0
+  }
+}

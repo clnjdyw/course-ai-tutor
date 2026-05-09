@@ -1,0 +1,206 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: full-app.spec.js >> 16. Additional Pages >> should load companion page
+- Location: tests\e2e\full-app.spec.js:545:3
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e8]: ⭐
+      - generic [ref=e9]: 🌟
+      - generic [ref=e10]: ✨
+    - generic [ref=e11]:
+      - complementary [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e15]: 🦊
+          - generic [ref=e16]:
+            - heading "AI 学习伙伴" [level=1] [ref=e17]
+            - paragraph [ref=e18]: 和小伙伴一起学习吧！
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: Lv.1
+            - generic [ref=e22]: 初学者
+          - progressbar [ref=e23]
+          - generic [ref=e26]: 0/400 经验值
+        - menubar [ref=e27]:
+          - menuitem "🗺️ 学习规划 开始冒险" [ref=e28] [cursor=pointer]:
+            - generic [ref=e29]:
+              - generic [ref=e31]: 🗺️
+              - generic [ref=e32]: 学习规划
+              - generic [ref=e33]: 开始冒险
+          - menuitem "👨‍🏫 智能教学 解锁知识" [ref=e34] [cursor=pointer]:
+            - generic [ref=e35]:
+              - generic [ref=e37]: 👨‍🏫
+              - generic [ref=e38]: 智能教学
+              - generic [ref=e39]: 解锁知识
+          - menuitem "💬 实时答疑 随时提问" [ref=e40] [cursor=pointer]:
+            - generic [ref=e41]:
+              - generic [ref=e43]: 💬
+              - generic [ref=e44]: 实时答疑
+              - generic [ref=e45]: 随时提问
+          - menuitem "📝 学习评估 挑战测试" [ref=e46] [cursor=pointer]:
+            - generic [ref=e47]:
+              - generic [ref=e49]: 📝
+              - generic [ref=e50]: 学习评估
+              - generic [ref=e51]: 挑战测试
+          - menuitem "⚔️ PK 对战 实时竞技" [ref=e52] [cursor=pointer]:
+            - generic [ref=e53]:
+              - generic [ref=e55]: ⚔️
+              - generic [ref=e56]: PK 对战
+              - generic [ref=e57]: 实时竞技
+          - menuitem "📝 自定义题库 模板" [ref=e58] [cursor=pointer]:
+            - generic [ref=e59]:
+              - generic [ref=e61]: 📝
+              - generic [ref=e62]: 自定义题库
+              - generic [ref=e63]: 模板
+          - menuitem "📖 学习会话 AI 陪伴" [ref=e64] [cursor=pointer]:
+            - generic [ref=e65]:
+              - generic [ref=e67]: 📖
+              - generic [ref=e68]: 学习会话
+              - generic [ref=e69]: AI 陪伴
+          - menuitem "🤖 学习伙伴 聊天" [ref=e70] [cursor=pointer]:
+            - generic [ref=e71]:
+              - generic [ref=e73]: 🤖
+              - generic [ref=e74]: 学习伙伴
+              - generic [ref=e75]: 聊天
+          - separator [ref=e76]
+          - menuitem "📊 成长记录" [ref=e77] [cursor=pointer]:
+            - generic [ref=e78]:
+              - generic [ref=e80]: 📊
+              - generic [ref=e81]: 成长记录
+          - menuitem "🏆 成就中心 收集徽章" [ref=e82] [cursor=pointer]:
+            - generic [ref=e83]:
+              - generic [ref=e85]: 🏆
+              - generic [ref=e86]: 成就中心
+              - generic [ref=e87]: 收集徽章
+          - menuitem "🔄 复习计划 间隔重复" [ref=e88] [cursor=pointer]:
+            - generic [ref=e89]:
+              - generic [ref=e91]: 🔄
+              - generic [ref=e92]: 复习计划
+              - generic [ref=e93]: 间隔重复
+          - menuitem "👤 个人中心" [ref=e94] [cursor=pointer]:
+            - generic [ref=e95]:
+              - generic [ref=e97]: 👤
+              - generic [ref=e98]: 个人中心
+          - separator [ref=e99]
+          - menuitem "📝 我的笔记" [ref=e100] [cursor=pointer]:
+            - generic [ref=e101]:
+              - generic [ref=e103]: 📝
+              - generic [ref=e104]: 我的笔记
+          - menuitem "❌ 错题本" [ref=e105] [cursor=pointer]:
+            - generic [ref=e106]:
+              - generic [ref=e108]: ❌
+              - generic [ref=e109]: 错题本
+          - menuitem "🕐 历史记录" [ref=e110] [cursor=pointer]:
+            - generic [ref=e111]:
+              - generic [ref=e113]: 🕐
+              - generic [ref=e114]: 历史记录
+          - menuitem "📊 学习进度" [ref=e115] [cursor=pointer]:
+            - generic [ref=e116]:
+              - generic [ref=e118]: 📊
+              - generic [ref=e119]: 学习进度
+          - menuitem "⏰ 学习提醒" [ref=e120] [cursor=pointer]:
+            - generic [ref=e121]:
+              - generic [ref=e123]: ⏰
+              - generic [ref=e124]: 学习提醒
+          - menuitem "⚙️ 系统设置" [ref=e125] [cursor=pointer]:
+            - generic [ref=e126]:
+              - generic [ref=e128]: ⚙️
+              - generic [ref=e129]: 系统设置
+          - generic [ref=e130]:
+            - separator [ref=e131]
+            - generic [ref=e132]: 🔧 管理工具
+            - menuitem "🛡️ 后台管理 ADMIN" [ref=e133] [cursor=pointer]:
+              - generic [ref=e134]:
+                - generic [ref=e136]: 🛡️
+                - generic [ref=e137]: 后台管理
+                - generic [ref=e138]: ADMIN
+        - generic [ref=e140]:
+          - generic [ref=e142]: 🧑‍🎓
+          - generic [ref=e143]:
+            - generic [ref=e144]: 同学
+            - generic [ref=e145]:
+              - generic [ref=e146]: 🔥
+              - generic [ref=e147]: 连续学习 0 天
+      - generic [ref=e148]:
+        - generic [ref=e150]:
+          - generic [ref=e151]:
+            - generic [ref=e152]: 🏠
+            - generic [ref=e153]: 首页
+            - generic [ref=e154]: →
+            - generic [ref=e155]: 学习伙伴
+          - generic [ref=e156]:
+            - generic [ref=e157]:
+              - generic [ref=e158]: 📋
+              - generic [ref=e159]: 今日任务：0/3
+              - superscript [ref=e161]: "3"
+            - button "🔔" [ref=e163] [cursor=pointer]:
+              - generic [ref=e165]: 🔔
+            - button "🚪" [ref=e166] [cursor=pointer]:
+              - generic [ref=e168]: 🚪
+        - main [ref=e169]:
+          - generic [ref=e171]:
+            - generic [ref=e173]:
+              - generic [ref=e174]:
+                - generic [ref=e176]: 🤖
+                - generic [ref=e177]:
+                  - generic [ref=e178]:
+                    - heading "🤖 AI 学习伙伴" [level=2] [ref=e179]
+                    - generic [ref=e180]: 在线
+                  - paragraph [ref=e181]: 你的专属学习陪伴，随时聊天，陪你一起成长
+              - generic [ref=e182]:
+                - button "🤖 AI 学习伙伴" [ref=e184] [cursor=pointer]:
+                  - generic [ref=e185]: 🤖
+                  - generic [ref=e186]: AI 学习伙伴
+                  - img [ref=e188]
+                - button "查看智能体信息" [ref=e190] [cursor=pointer]:
+                  - img [ref=e193]
+                - button "🗑️ 清空对话" [disabled] [ref=e195]:
+                  - generic [ref=e196]: 🗑️ 清空对话
+            - generic [ref=e198]:
+              - generic [ref=e200]:
+                - generic [ref=e203]: 🤖
+                - generic [ref=e204]:
+                  - generic [ref=e206]:
+                    - paragraph [ref=e207]:
+                      - text: 你好呀！我是你的
+                      - strong [ref=e208]: AI 学习伙伴
+                      - text: 🌟
+                    - paragraph [ref=e209]: 不管是学习上的疑问、遇到的困难，还是想要找人聊聊，我都在这里陪着你！
+                    - paragraph [ref=e210]: 有什么想和我说的吗？
+                  - generic [ref=e211]: 12:31
+              - generic [ref=e212]:
+                - generic [ref=e213]:
+                  - generic [ref=e214]: 💡
+                  - generic [ref=e215]: 试试聊这些
+                - generic [ref=e216]:
+                  - generic [ref=e218] [cursor=pointer]: 最近学习好累，怎么调整状态？
+                  - generic [ref=e220] [cursor=pointer]: 帮我制定一个学习计划吧
+                  - generic [ref=e222] [cursor=pointer]: 今天学了很多但记不住怎么办？
+                  - generic [ref=e224] [cursor=pointer]: 聊聊你的学习方法
+                  - generic [ref=e226] [cursor=pointer]: 如何保持学习动力？
+                  - generic [ref=e228] [cursor=pointer]: 给我一些鼓励吧
+              - generic [ref=e230]:
+                - textbox "随便聊聊吧，学习上的困惑、生活中的心情都可以告诉我..." [ref=e232]
+                - generic [ref=e233]:
+                  - generic [ref=e234]: Enter 发送，Shift+Enter 换行
+                  - button "发送" [disabled] [ref=e236]:
+                    - generic [ref=e237]:
+                      - img [ref=e239]
+                      - text: 发送
+  - alert [ref=e241]:
+    - img [ref=e243]
+    - paragraph [ref=e245]: Request failed with status code 429
+  - alert [ref=e246]:
+    - img [ref=e248]
+    - paragraph [ref=e250]: Request failed with status code 429
+```

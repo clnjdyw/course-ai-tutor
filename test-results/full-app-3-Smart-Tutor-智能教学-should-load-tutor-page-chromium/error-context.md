@@ -1,0 +1,208 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: full-app.spec.js >> 3. Smart Tutor (智能教学) >> should load tutor page
+- Location: tests\e2e\full-app.spec.js:162:3
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e8]: ⭐
+      - generic [ref=e9]: 🌟
+      - generic [ref=e10]: ✨
+    - generic [ref=e11]:
+      - complementary [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e15]: 🦊
+          - generic [ref=e16]:
+            - heading "AI 学习伙伴" [level=1] [ref=e17]
+            - paragraph [ref=e18]: 和小伙伴一起学习吧！
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: Lv.1
+            - generic [ref=e22]: 初学者
+          - progressbar [ref=e23]
+          - generic [ref=e26]: 0/400 经验值
+        - menubar [ref=e27]:
+          - menuitem "🗺️ 学习规划 开始冒险" [ref=e28] [cursor=pointer]:
+            - generic [ref=e29]:
+              - generic [ref=e31]: 🗺️
+              - generic [ref=e32]: 学习规划
+              - generic [ref=e33]: 开始冒险
+          - menuitem "👨‍🏫 智能教学 解锁知识" [ref=e34] [cursor=pointer]:
+            - generic [ref=e35]:
+              - generic [ref=e37]: 👨‍🏫
+              - generic [ref=e38]: 智能教学
+              - generic [ref=e39]: 解锁知识
+          - menuitem "💬 实时答疑 随时提问" [ref=e40] [cursor=pointer]:
+            - generic [ref=e41]:
+              - generic [ref=e43]: 💬
+              - generic [ref=e44]: 实时答疑
+              - generic [ref=e45]: 随时提问
+          - menuitem "📝 学习评估 挑战测试" [ref=e46] [cursor=pointer]:
+            - generic [ref=e47]:
+              - generic [ref=e49]: 📝
+              - generic [ref=e50]: 学习评估
+              - generic [ref=e51]: 挑战测试
+          - menuitem "⚔️ PK 对战 实时竞技" [ref=e52] [cursor=pointer]:
+            - generic [ref=e53]:
+              - generic [ref=e55]: ⚔️
+              - generic [ref=e56]: PK 对战
+              - generic [ref=e57]: 实时竞技
+          - menuitem "📝 自定义题库 模板" [ref=e58] [cursor=pointer]:
+            - generic [ref=e59]:
+              - generic [ref=e61]: 📝
+              - generic [ref=e62]: 自定义题库
+              - generic [ref=e63]: 模板
+          - menuitem "📖 学习会话 AI 陪伴" [ref=e64] [cursor=pointer]:
+            - generic [ref=e65]:
+              - generic [ref=e67]: 📖
+              - generic [ref=e68]: 学习会话
+              - generic [ref=e69]: AI 陪伴
+          - menuitem "🤖 学习伙伴 聊天" [ref=e70] [cursor=pointer]:
+            - generic [ref=e71]:
+              - generic [ref=e73]: 🤖
+              - generic [ref=e74]: 学习伙伴
+              - generic [ref=e75]: 聊天
+          - separator [ref=e76]
+          - menuitem "📊 成长记录" [ref=e77] [cursor=pointer]:
+            - generic [ref=e78]:
+              - generic [ref=e80]: 📊
+              - generic [ref=e81]: 成长记录
+          - menuitem "🏆 成就中心 收集徽章" [ref=e82] [cursor=pointer]:
+            - generic [ref=e83]:
+              - generic [ref=e85]: 🏆
+              - generic [ref=e86]: 成就中心
+              - generic [ref=e87]: 收集徽章
+          - menuitem "🔄 复习计划 间隔重复" [ref=e88] [cursor=pointer]:
+            - generic [ref=e89]:
+              - generic [ref=e91]: 🔄
+              - generic [ref=e92]: 复习计划
+              - generic [ref=e93]: 间隔重复
+          - menuitem "👤 个人中心" [ref=e94] [cursor=pointer]:
+            - generic [ref=e95]:
+              - generic [ref=e97]: 👤
+              - generic [ref=e98]: 个人中心
+          - separator [ref=e99]
+          - menuitem "📝 我的笔记" [ref=e100] [cursor=pointer]:
+            - generic [ref=e101]:
+              - generic [ref=e103]: 📝
+              - generic [ref=e104]: 我的笔记
+          - menuitem "❌ 错题本" [ref=e105] [cursor=pointer]:
+            - generic [ref=e106]:
+              - generic [ref=e108]: ❌
+              - generic [ref=e109]: 错题本
+          - menuitem "🕐 历史记录" [ref=e110] [cursor=pointer]:
+            - generic [ref=e111]:
+              - generic [ref=e113]: 🕐
+              - generic [ref=e114]: 历史记录
+          - menuitem "📊 学习进度" [ref=e115] [cursor=pointer]:
+            - generic [ref=e116]:
+              - generic [ref=e118]: 📊
+              - generic [ref=e119]: 学习进度
+          - menuitem "⏰ 学习提醒" [ref=e120] [cursor=pointer]:
+            - generic [ref=e121]:
+              - generic [ref=e123]: ⏰
+              - generic [ref=e124]: 学习提醒
+          - menuitem "⚙️ 系统设置" [ref=e125] [cursor=pointer]:
+            - generic [ref=e126]:
+              - generic [ref=e128]: ⚙️
+              - generic [ref=e129]: 系统设置
+          - generic [ref=e130]:
+            - separator [ref=e131]
+            - generic [ref=e132]: 🔧 管理工具
+            - menuitem "🛡️ 后台管理 ADMIN" [ref=e133] [cursor=pointer]:
+              - generic [ref=e134]:
+                - generic [ref=e136]: 🛡️
+                - generic [ref=e137]: 后台管理
+                - generic [ref=e138]: ADMIN
+        - generic [ref=e140]:
+          - generic [ref=e142]: 🧑‍🎓
+          - generic [ref=e143]:
+            - generic [ref=e144]: 同学
+            - generic [ref=e145]:
+              - generic [ref=e146]: 🔥
+              - generic [ref=e147]: 连续学习 0 天
+      - generic [ref=e148]:
+        - generic [ref=e150]:
+          - generic [ref=e151]:
+            - generic [ref=e152]: 🏠
+            - generic [ref=e153]: 首页
+            - generic [ref=e154]: →
+            - generic [ref=e155]: 智能教学
+          - generic [ref=e156]:
+            - generic [ref=e157]:
+              - generic [ref=e158]: 📋
+              - generic [ref=e159]: 今日任务：0/3
+              - superscript [ref=e161]: "3"
+            - button "🔔" [ref=e163] [cursor=pointer]:
+              - generic [ref=e165]: 🔔
+            - button "🚪" [ref=e166] [cursor=pointer]:
+              - generic [ref=e168]: 🚪
+        - main [ref=e169]:
+          - generic [ref=e171]:
+            - generic [ref=e173]:
+              - generic [ref=e174]:
+                - generic [ref=e176]: 👨‍🏫
+                - generic [ref=e177]:
+                  - heading "👨‍🏫 智能教学" [level=2] [ref=e178]
+                  - paragraph [ref=e179]: 一对一专属 AI 教师，耐心讲解每个知识点
+              - generic [ref=e180]:
+                - generic [ref=e182]: 🎓 一对一授课
+                - button "🗑️ 清空对话" [disabled] [ref=e183]:
+                  - generic [ref=e184]: 🗑️ 清空对话
+            - generic [ref=e186]:
+              - generic [ref=e188]:
+                - generic [ref=e191]: 🤖
+                - generic [ref=e192]:
+                  - generic [ref=e194]:
+                    - paragraph [ref=e195]:
+                      - text: 👋 你好！我是你的
+                      - strong [ref=e196]: AI 教学助手
+                      - text: 。我会为你详细讲解任何知识点，请问你想学习什么？
+                    - paragraph [ref=e197]: 你也可以点击下方快捷问题开始学习！
+                  - generic [ref=e198]: 🕐 12:28
+              - generic [ref=e199]:
+                - generic [ref=e200]:
+                  - generic [ref=e201]: ⚡
+                  - generic [ref=e202]: 快捷提问
+                - generic [ref=e203]:
+                  - generic [ref=e205] [cursor=pointer]: 什么是依赖注入？
+                  - generic [ref=e207] [cursor=pointer]: Spring Boot 自动配置原理
+                  - generic [ref=e209] [cursor=pointer]: 如何理解 MVC 模式？
+                  - generic [ref=e211] [cursor=pointer]: RESTful API 设计规范
+                  - generic [ref=e213] [cursor=pointer]: 数据库索引的优缺点
+                  - generic [ref=e215] [cursor=pointer]: 解释一下闭包的概念和应用
+                  - generic [ref=e217] [cursor=pointer]: Vue 3 的 Composition API 有什么优势？
+                  - generic [ref=e219] [cursor=pointer]: 如何优化前端性能？
+                  - generic [ref=e221] [cursor=pointer]: 什么是微服务架构？
+                  - generic [ref=e223] [cursor=pointer]: Git 的 rebase 和 merge 有什么区别？
+              - generic [ref=e225]:
+                - textbox "请输入你想学习的知识点，例如：什么是依赖注入？" [ref=e227]
+                - generic [ref=e228]:
+                  - generic [ref=e229]:
+                    - generic [ref=e230]: 📊 难度：
+                    - generic [ref=e232] [cursor=pointer]:
+                      - generic:
+                        - combobox [ref=e234]
+                        - generic [ref=e235]: 🌱 零基础
+                      - img [ref=e238]
+                  - generic [ref=e240]:
+                    - button "🖼️ 图片" [ref=e241] [cursor=pointer]:
+                      - generic [ref=e242]: 🖼️ 图片
+                    - button "🎤 语音" [ref=e243] [cursor=pointer]:
+                      - generic [ref=e244]: 🎤 语音
+                    - button "发送" [disabled] [ref=e245]:
+                      - generic [ref=e246]: 发送
+  - alert [ref=e247]:
+    - img [ref=e249]
+    - paragraph [ref=e251]: Request failed with status code 429
+```
